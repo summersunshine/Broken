@@ -6,6 +6,12 @@ using TINVoronoi;
 
 public class Window : MonoBehaviour {
 
+    public enum RandomType
+    {
+        circle = 0,
+        rect = 1,
+    }
+
     public List<Vector3> vertexs;
 
 
@@ -24,20 +30,39 @@ public class Window : MonoBehaviour {
    
 	// Use this for initialization
 	void Start () {
+        D_TIN.DS.BBOX.XLeft = -50;
+        D_TIN.DS.BBOX.YTop = 50;
+        D_TIN.DS.BBOX.XRight = 50;
+        D_TIN.DS.BBOX.YBottom = -50;
+
         Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
 
-
-
-        for (int i = 0; i < 20; i++)
-        {
-            addVertex(new Vector2(UnityEngine.Random.Range(-48, 48), UnityEngine.Random.Range(-48, 48)));
-        }
-        addVertex(new Vector2(50, 50));
-        addVertex(new Vector2(50, -50));
-        addVertex(new Vector2(-50, 50));
-        addVertex(new Vector2(-49, -50));
+        createRandomVertexs(20, RandomType.circle, 20);
+        //addVertex(new Vector2(50, 50));
+        //addVertex(new Vector2(50, -50));
+        //addVertex(new Vector2(-50, 50));
+        //addVertex(new Vector2(-50, -50));
         ShowTriangle();
 	}
+
+    public void createRandomVertexs(int num,RandomType randomType,int size)
+    {
+        for (int i = 0; i < num; i++)
+        {
+            Vector2 pos = Vector2.zero;
+            if (randomType == RandomType.circle)
+            {
+                pos = size * UnityEngine.Random.insideUnitCircle;
+            }
+            else if(randomType == RandomType.rect)
+            {
+                pos = new Vector2(UnityEngine.Random.Range(-size, size), UnityEngine.Random.Range(-size, size));
+            }
+            addVertex(pos);
+        }
+
+    }
+
 	
 
     public void addVertex(Vector2 e)
@@ -85,6 +110,7 @@ public class Window : MonoBehaviour {
 
         splitMesh(mesh);
 
+        D_TIN.CreateVoronoi(scene);
        // plane.SetActive(false);
        
     }
@@ -125,12 +151,12 @@ public class Window : MonoBehaviour {
             vertices[3] = mesh.vertices[mesh.triangles[i + 0]] - Vector3.up;
             vertices[4] = mesh.vertices[mesh.triangles[i + 1]] - Vector3.up;
             vertices[5] = mesh.vertices[mesh.triangles[i + 2]] - Vector3.up;
-            Debug.Log(vertices[0]);
-            Debug.Log(vertices[1]);
-            Debug.Log(vertices[2]);
-            Debug.Log(vertices[3]);
-            Debug.Log(vertices[4]);
-            Debug.Log(vertices[5]);
+            //Debug.Log(vertices[0]);
+            //Debug.Log(vertices[1]);
+            //Debug.Log(vertices[2]);
+            //Debug.Log(vertices[3]);
+            //Debug.Log(vertices[4]);
+            //Debug.Log(vertices[5]);
 
             //Debug.Log(mesh.triangles[i]);
             Mesh subMesh = new Mesh();

@@ -7,7 +7,7 @@ namespace TINVoronoi
 
     public struct PointF
     {
-        private float x,y;
+        private float x, y;
 
         //
         // 摘要: 
@@ -43,7 +43,23 @@ namespace TINVoronoi
         public float Y { get { return y; } set { y = value; } }
 
 
+        public bool Equals(PointF obj)
+        {
+            return this.X == obj.X && this.Y == obj.Y;
+        }
 
+        public static PointF zero
+        {
+            get
+            {
+                return new PointF(0, 0);
+            }
+        }
+
+        public string ToString()
+        {
+            return " " + x + "," + y;
+        }
 
     }
 
@@ -58,7 +74,7 @@ namespace TINVoronoi
         //相等则返回true
         public static bool Compare(Vertex a, Vertex b)
         {
-            return a.x == b.x && a.y == b.y ;
+            return a.x == b.x && a.y == b.y;
         }
     }
 
@@ -71,6 +87,7 @@ namespace TINVoronoi
         public long AdjTriangle1ID;
         public long AdjacentT1V3;    //△1的第三顶点在顶点数组的索引
         public long AdjTriangle2ID;
+        public long useTime;
 
         public Edge(long iV1, long iV2)
         {
@@ -80,15 +97,16 @@ namespace TINVoronoi
             AdjTriangle1ID = 0;
             AdjTriangle2ID = 0;
             AdjacentT1V3 = 0;
+            useTime = 2;
         }
 
         //相等则返回true
         public static bool Compare(Edge a, Edge b)
         {
-            return ((a.Vertex1ID== b.Vertex1ID) && (a.Vertex2ID==b.Vertex2ID)) ||
-                ((a.Vertex1ID== b.Vertex2ID) && (a.Vertex2ID==b.Vertex1ID));
-        }    
-       
+            return ((a.Vertex1ID == b.Vertex1ID) && (a.Vertex2ID == b.Vertex2ID)) ||
+                ((a.Vertex1ID == b.Vertex2ID) && (a.Vertex2ID == b.Vertex1ID));
+        }
+
     }
 
     //三角形
@@ -104,6 +122,15 @@ namespace TINVoronoi
     {
         public double X;
         public double Y;
+        public long useTime;
+        public List<long> AdjIndexs;
+        public Barycenter(double X,double Y)
+        {
+            this.X = X;
+            this.Y = Y;
+            this.useTime = 3;
+            AdjIndexs = new List<long>();
+        }
     }
 
     public struct VoronoiEdge
@@ -111,27 +138,50 @@ namespace TINVoronoi
         public Edge VEdge;
     }
 
-    public struct BoundaryBox
+    public class BoundaryBox
     {
+
         public long XLeft;
         public long YTop;
         public long XRight;
         public long YBottom;
+        public List<Barycenter> leftBarycenter = new List<Barycenter>();
+        public List<Barycenter> rightBarycenter = new List<Barycenter>();
+        public List<Barycenter> topBarycenter = new List<Barycenter>();
+        public List<Barycenter> bottomtBarycenter = new List<Barycenter>();
+        public List<Barycenter>[] baryCenters = new List<Barycenter>[4];
     }
 
+    public struct Polygon
+    {
+        public int VertexNum;
+        public PointF[] Vertex;
+        public void addVertex(PointF vertex)
+        {
+            Vertex[VertexNum] = vertex;
+            VertexNum++;
+        }
+    }
+
+
     public class DataStruct
-    { 
-        public static int MaxVertices=500;
-        public static int MaxEdges=2000;
-        public static int MaxTriangles = 1000;
-        public Vertex[] Vertex=new Vertex[MaxVertices];
+    {
+        public static int MaxVertices = 500;
+        public static int MaxEdges = 2000;
+        public static int MaxTriangles = 100;
+        public static int MaxPolygons = 100;
+        public Vertex[] Vertex = new Vertex[MaxVertices];
         public Triangle[] Triangle = new Triangle[MaxTriangles];
         public Barycenter[] Barycenters = new Barycenter[MaxTriangles]; //外接圆心
         public Edge[] TinEdges = new Edge[MaxEdges];
         public BoundaryBox BBOX = new BoundaryBox();  //图副边界框
+        public Polygon[] Polygon = new Polygon[MaxPolygons];
+        //public PointF [] pointList = new PointF[];
+        public bool[,] connectMap = new bool[MaxTriangles, MaxTriangles];
         public int VerticesNum = 0;
         public int TinEdgeNum = 0;
         public int TriangleNum = 0;
+        public int PolygonNum = 0;
     }
 
 }
