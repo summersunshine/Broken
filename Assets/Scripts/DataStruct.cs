@@ -19,7 +19,7 @@ namespace TINVoronoi
         //
         //   y:
         //     该点的垂直位置。
-        public PointF(float x, float y)
+        public PointF(float x = 0, float y = 0)
         {
             this.x = x;
             this.y = y;
@@ -87,7 +87,6 @@ namespace TINVoronoi
         public long AdjTriangle1ID;
         public long AdjacentT1V3;    //△1的第三顶点在顶点数组的索引
         public long AdjTriangle2ID;
-        public long useTime;
 
         public Edge(long iV1, long iV2)
         {
@@ -97,7 +96,6 @@ namespace TINVoronoi
             AdjTriangle1ID = 0;
             AdjTriangle2ID = 0;
             AdjacentT1V3 = 0;
-            useTime = 2;
         }
 
         //相等则返回true
@@ -122,44 +120,36 @@ namespace TINVoronoi
     {
         public double X;
         public double Y;
-        public long useTime;
-        public List<long> AdjIndexs;
-        public Barycenter(double X,double Y)
+        public PointF point
         {
-            this.X = X;
-            this.Y = Y;
-            this.useTime = 3;
-            AdjIndexs = new List<long>();
+            get
+            {
+                return new PointF((float)X, (float)Y);
+            }
         }
     }
 
-    public struct VoronoiEdge
-    {
-        public Edge VEdge;
-    }
 
     public class BoundaryBox
     {
-
         public long XLeft;
         public long YTop;
         public long XRight;
         public long YBottom;
-        public List<Barycenter> leftBarycenter = new List<Barycenter>();
-        public List<Barycenter> rightBarycenter = new List<Barycenter>();
-        public List<Barycenter> topBarycenter = new List<Barycenter>();
-        public List<Barycenter> bottomtBarycenter = new List<Barycenter>();
-        public List<Barycenter>[] baryCenters = new List<Barycenter>[4];
     }
 
-    public struct Polygon
+    public class Polygon
     {
-        public int VertexNum;
-        public PointF[] Vertex;
+        //public int VertexNum;
+        public List<PointF> points = new List<PointF>();
+
+        public Polygon()
+        {
+
+        }
         public void addVertex(PointF vertex)
         {
-            Vertex[VertexNum] = vertex;
-            VertexNum++;
+            points.Add(vertex);
         }
     }
 

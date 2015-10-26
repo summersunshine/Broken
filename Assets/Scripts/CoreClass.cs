@@ -7,13 +7,8 @@ namespace TINVoronoi
 {
     partial class Delaynay
     {
-        //public static const int left = 0;
-        //public static const int right = 1;
-        //public static const int top = 2;
-        //public static const int bottom = 3;
-
         public DataStruct DS = new DataStruct();  //数据结构
-        List<PointF> pointsList  = new List<PointF>();
+        //List<PointF> pointsList  = new List<PointF>();
         List<PointF> startIndexs = new List<PointF>();
         List<Polygon> polygons = new List<Polygon>();
 
@@ -21,44 +16,45 @@ namespace TINVoronoi
         public void CreateVoronoi(GameObject scene)
         {
 
-
-            for (int i = 0; i < DS.Barycenters.Length; i++)
-            {
-                PointF p1 = new PointF(Convert.ToSingle(DS.Barycenters[i].X), Convert.ToSingle(DS.Barycenters[i].Y));
-                pointsList.Add(p1);
-                Debug.Log(p1.ToString());
-            }
-
             //可以用来起始搜索的
-            
+
             for (int i = 0; i < DS.TinEdgeNum; i++)
             {
                 if (!DS.TinEdges[i].NotHullEdge) //△边为凸壳边
                 {
                     PointF endPnt = getEndPntVorEdge(i);
-                    if (!endPnt.Equals(PointF.zero))
+                    //Debug.Log(endPnt.ToString());
+                    if (!endPnt.Equals(new PointF(0,0)))
                     {
-
                         //起始
                         long index = DS.TinEdges[i].AdjTriangle1ID;
 
-                        DS.connectMap[index, pointsList.Count] = true;
-                        DS.connectMap[pointsList.Count, index] = true;
-                        //startIndex.Add(pointsList.Count);
-                        startIndexs.Add(new PointF(pointsList.Count, index));
-                        pointsList.Add(endPnt);
+                        DS.connectMap[index, DS.TriangleNum] = true;
+                        DS.connectMap[DS.TriangleNum, index] = true;
+                        startIndexs.Add(new PointF(DS.TriangleNum, index));
+                        Barycenter barycenter = new Barycenter();
+                        barycenter.X = endPnt.X;
+                        barycenter.Y = endPnt.Y;
+                        DS.Barycenters[DS.TriangleNum] = barycenter;
+                        DS.TriangleNum++;
                     }
 
                 }
             }
 
-            for(int i = 0 ;i  < startIndexs.Count; i ++)
+
+            
+
+
+
+            for (int i = 0; i < startIndexs.Count; i++)
             {
                 Polygon polygon = new Polygon();
                 int lastIndex = (int)startIndexs[i].X;
                 int currIndex = (int)startIndexs[i].Y;
-                PointF lastPoint = pointsList[lastIndex];
-                PointF currPoint = pointsList[currIndex];
+
+                PointF lastPoint = DS.Barycenters[lastIndex].point;
+                PointF currPoint = DS.Barycenters[currIndex].point;
                 polygon.addVertex(lastPoint);
                 polygon.addVertex(currPoint);
                 polygons.Add(polygon);
@@ -66,39 +62,162 @@ namespace TINVoronoi
             }
 
 
-            for (int i = 0; i < polygons.Count; i++)
+            //for (int i = 0; i < DS.TriangleNum;i++ )
+            //{
+            //    int x = (int)DS.Barycenters[i].X;
+            //    int y = (int)DS.Barycenters[i].Y;
+            //    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            //    go.transform.localPosition = new Vector3(x, 0, y);
+            //    go.transform.parent = scene.transform;
+            //    go.name = i.ToString();
+            //}
+
+            for (int i = 0; i < 1; i++)
             {
-                for (int j = 0; j < polygons[i].VertexNum; j++)
+                Polygon polygon = polygons[i];
+                modifyPolygon(ref polygon);
+                LineRenderer lineRender = scene.GetComponent<LineRenderer>();
+                lineRender.SetVertexCount(polygons[i].points.Count+1);
+                for (int j = 0; j <= polygons[i].points.Count; j++)
                 {
-                    int x = (int)polygons[i].Vertex[j].X;
-                    int y = (int)polygons[i].Vertex[j].Y;
+                    int x = (int)polygons[i].points[j % polygons[i].points.Count].X;
+                    int y = (int)polygons[i].points[j % polygons[i].points.Count].Y;
                     GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    go.transform.localPosition = new Vector3(x,0,y);
+                    go.transform.localPosition = new Vector3(x, 0, y);
                     go.transform.parent = scene.transform;
+                    go.name = i.ToString();
                     //Debug.Log()
+                    
+                    lineRender.SetPosition(j, new Vector3(x, 0, y));
                 }
+                
+            }
+        }
+
+        private void modifyPolygon(ref Polygon polygon)
+        {
+            PointF first = polygon.points[0];
+            PointF last = polygon.points[polygon.points.Count - 1];
+            int firstIndex = getEdgeIndex(first);
+            int lastIndex = getEdgeIndex(last);
+
+
+            if (firstIndex == lastIndex)
+                return;
+
+            if (firstIndex % 2 == 1 && lastIndex % 2 == 1)
+            {
+                PointF point = new PointF();
+                point.X = getBoundary(0);
+                point.Y = getBoundary(1);
+                if (isShunshizhen(point, first, polygon.points[2]))
+                {
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
+                }
+                else
+                {
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
+                }
+            }
+            if (firstIndex % 2 == 0 && lastIndex % 2 == 0)
+            {
+                PointF point = new PointF();
+                point.X = getBoundary(0);
+                point.Y = getBoundary(1);
+                if (isShunshizhen(point, first, polygon.points[2]))
+                {
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+
+                }
+                else
+                {
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
+                }
+            }
+
+            if (firstIndex % 2 == 0 && lastIndex % 2 == 1)
+            {
+                PointF point = new PointF();
+                point.X = getBoundary(firstIndex);
+                point.Y = getBoundary(lastIndex);
+                polygon.addVertex(point);
+            }
+
+            if (firstIndex % 2 == 1 && lastIndex % 2 == 0)
+            {
+                PointF point = new PointF();
+                point.X = getBoundary(lastIndex);
+                point.Y = getBoundary(firstIndex);
+                polygon.addVertex(point);
             }
         }
 
 
+        long getBoundary(int index)
+        {
+            if (index == 0)
+            {
+                return DS.BBOX.XLeft;
+            }
+            else if (index == 1)
+            {
+                return DS.BBOX.YTop;
+            }
+            else if (index == 2)
+            {
+                return DS.BBOX.XRight;
+            }
+            else
+            {
+                return DS.BBOX.YBottom;
+            }
+        }
+
+
+        int getEdgeIndex(PointF point)
+        {
+            int edgeIndex = -1;
+            if (Math.Abs(point.X - DS.BBOX.XLeft) < 0.1)
+            {
+                edgeIndex = 0;
+            }
+            else if (Math.Abs(point.Y - DS.BBOX.YTop) < 0.1)
+            {
+                edgeIndex = 1;
+            }
+            else if (Math.Abs(point.X - DS.BBOX.XRight) < 0.1)
+            {
+                edgeIndex = 2;
+            }
+            else if (Math.Abs(point.Y - DS.BBOX.YBottom) < 0.1)
+            {
+                edgeIndex = 3;
+            }
+            return edgeIndex;
+        }
+
         public void searchMap(int startIndex,int lastIndex,int currIndex)
         {
-
-            PointF lastPoint = pointsList[lastIndex];
-            PointF currPoint = pointsList[currIndex];
-            for (int nextIndex = 0; nextIndex < pointsList.Count; nextIndex++)
+            PointF lastPoint = DS.Barycenters[lastIndex].point;
+            PointF currPoint = DS.Barycenters[currIndex].point;
+            for (int nextIndex = 0; nextIndex < DS.TriangleNum; nextIndex++)
             {
 
-                PointF nextPoint = pointsList[nextIndex];
+                PointF nextPoint = DS.Barycenters[nextIndex].point;
                 if (DS.connectMap[currIndex, nextIndex] &&//如果是联通的
-                    lastIndex != nextIndex //不是前面一个index
-                    )
+                    lastIndex != nextIndex) //不是前面一个index
                 {
                     //搜到起始点了
                     if (nextIndex == startIndex)
                         return;
-                    
-                    if(isShunshizhen(lastPoint,currPoint,nextPoint)){
+
+                    if (isShunshizhen(lastPoint, currPoint, nextPoint))
+                    {
+                        DS.connectMap[currIndex, nextIndex] = false;
                         polygons[polygons.Count - 1].addVertex(nextPoint);
                         searchMap(startIndex, currIndex, nextIndex);
                     }
@@ -109,275 +228,10 @@ namespace TINVoronoi
 
         public bool isShunshizhen(PointF lasPoint, PointF currPoint, PointF nextPoint)
         {
-            return (currPoint.X - currPoint.X) * (nextPoint.Y - currPoint.X) - (currPoint.Y - lasPoint.Y) * (nextPoint.X - currPoint.X) > 0;
+            return (currPoint.X - lasPoint.X) * (nextPoint.Y - currPoint.Y) - (currPoint.Y - lasPoint.Y) * (nextPoint.X - currPoint.X) > 0;
         }
 
-        //public void searchForHullEdge(long currIndex,long lastIndex,long startIndex)
-        //{
-        //     PointF p = new PointF(Convert.ToSingle(DS.Barycenters[currIndex].X), Convert.ToSingle(DS.Barycenters[currIndex].Y));
-             
-        //    for (int i = 0; i < DS.TinEdgeNum; i++)
-        //    {
-        //        if (!DS.TinEdges[i].NotHullEdge) //△边为凸壳边
-        //        {
-        //        }
-        //                }
-        //    DS.Polygon[DS.PolygonNum].addVertex()
-        //}
-
-        //public void searchForNotHullEdge(long currIndex, long lastIndex, long startIndex)
-        //{
-        //    DS.Barycenters[currIndex].useTime--;
-        //    PointF p = new PointF(Convert.ToSingle(DS.Barycenters[currIndex].X), Convert.ToSingle(DS.Barycenters[currIndex].Y));
-        //    DS.Polygon[DS.PolygonNum].addVertex(p);
-        //    List<long> indexList = getSameBaryCenterTriangleIndex(currIndex);
-        //    for(int i = 0 ; i <indexList.Count ; i++)
-        //    {
-        //        if(isShunshizhen(indexList[i]))
-        //        {
-        //            searchForNotHullEdge(indexList[i], currIndex, startIndex);
-        //        }
-        //    }
-        //}
-
-        public List<long> getSameBaryCenterTriangleIndex(long currIndex)
-        {
-            PointF p = new PointF(Convert.ToSingle(DS.Barycenters[currIndex].X), Convert.ToSingle(DS.Barycenters[currIndex].Y));
-            List<long> indexList = new List<long>();
-            for (long i = 0; i < DS.TinEdgeNum; i++)
-            {
-                //判断index1
-                long index = DS.TinEdges[i].AdjTriangle1ID;
-                PointF xp = new PointF(Convert.ToSingle(DS.Barycenters[index].X), Convert.ToSingle(DS.Barycenters[index].Y));
-
-                if (xp.Equals(p) && index != currIndex)
-                {
-                    indexList.Add(index);
-                }
-
-                //判断index2
-                if (DS.TinEdges[i].NotHullEdge)
-                {
-                    index = DS.TinEdges[i].AdjTriangle2ID;
-                    xp = new PointF(Convert.ToSingle(DS.Barycenters[index].X), Convert.ToSingle(DS.Barycenters[index].Y));
-                    if (xp.Equals(p) && index != currIndex)
-                    {
-                        indexList.Add(index);
-                    }
-                }
-            }
-            return indexList;
-        }
-
-
-
-        public void handleHullEdge()
-        {
-            int num = DS.TriangleNum;
-            //左上角
-            Barycenter leftTop = new Barycenter(DS.BBOX.XLeft, DS.BBOX.YTop);
-            //左下角
-            Barycenter leftBottom = new Barycenter(DS.BBOX.XLeft, DS.BBOX.YBottom);
-            //右上角
-            Barycenter rightTop = new Barycenter(DS.BBOX.XRight, DS.BBOX.YTop);
-            //右下角
-            Barycenter rightBottom = new Barycenter(DS.BBOX.XRight, DS.BBOX.YBottom);
-            DS.Barycenters[num].AdjIndexs.Add(num + 1);
-            DS.Barycenters[num].AdjIndexs.Add(num + 2);
-            DS.Barycenters[num + 1].AdjIndexs.Add(num);
-            DS.Barycenters[num + 1].AdjIndexs.Add(num + 3);
-            DS.Barycenters[num + 2].AdjIndexs.Add(num);
-            DS.Barycenters[num + 2].AdjIndexs.Add(num + 3);
-            DS.Barycenters[num + 3].AdjIndexs.Add(num + 1);
-            DS.Barycenters[num + 3].AdjIndexs.Add(num + 2);
-
-            DS.BBOX.baryCenters[0].Add(DS.Barycenters[num]);
-            DS.BBOX.baryCenters[0].Add(DS.Barycenters[num + 1]);
-            DS.BBOX.baryCenters[1].Add(DS.Barycenters[num + 2]);
-            DS.BBOX.baryCenters[1].Add(DS.Barycenters[num + 3]);
-            DS.BBOX.baryCenters[2].Add(DS.Barycenters[num + 0]);
-            DS.BBOX.baryCenters[2].Add(DS.Barycenters[num + 2]);
-            DS.BBOX.baryCenters[3].Add(DS.Barycenters[num + 1]);
-            DS.BBOX.baryCenters[3].Add(DS.Barycenters[num + 3]);
-
-            for (int i = 0; i < DS.TinEdgeNum; i++)
-            {
-                if (!DS.TinEdges[i].NotHullEdge) //△边为凸壳边
-                {
-                    PointF endPnt =  getEndPntVorEdge(i);
-                    if (!endPnt.Equals(PointF.zero))
-                    {
-                       // long index = DS.TinEdges[i].AdjTriangle1ID;
-                       // checkPosition(endPnt,index);
-                    }
-                }
-            }
-
-            DS.BBOX.leftBarycenter.Sort(CompareX);
-            DS.BBOX.rightBarycenter.Sort(CompareX);
-            DS.BBOX.topBarycenter.Sort(CompareY);
-            DS.BBOX.bottomtBarycenter.Sort(CompareY);
-        }
-
-
-
-        void insertBaryCenter(PointF point,long index)
-        {
-            Barycenter baryCenter = new Barycenter(point.X, point.Y);
-            //baryCenter.AdjIndexs.Add(triangleID);
-            //int edgeIndex = -1;
-            //if (point.X == DS.BBOX.XLeft)
-            //{
-            //  //  edgeIndex = 0;
-            //    //DS.BBOX.leftBarycenter.Add(baryCenter);
-            //}
-            //else if (point.X == DS.BBOX.XRight)
-            //{
-            //    //edgeIndex = 1;
-            //    //DS.BBOX.rightBarycenter.Add(baryCenter);
-            //}
-            //else if (point.Y == DS.BBOX.YTop)
-            //{
-            //    //edgeIndex = 2;
-            //    //DS.BBOX.topBarycenter.Add(baryCenter);
-            //}
-            //else if (point.Y == DS.BBOX.YBottom)
-            //{
-            //    //edgeIndex = 3;
-            //    //DS.BBOX.bottomtBarycenter.Add(baryCenter);
-            //}
-            int edgeIndex = getDegeIndex(point);
-
-            //for(int i = 1 ; i < DS.BBOX.baryCenters[edgeIndex].Count-1; i++)
-            //{
-            //    if(edgeIndex == left)
-            //    {
-            //        if(baryCenter.Y > DS.BBOX.baryCenters[edgeIndex][i].Y)
-            //        {
-            //            DS.connectMap[index, num] = true;
-            //            DS.BBOX.baryCenters[edgeIndex].Add(baryCenter);
-            //        }
-            //    }
-            //}
-
-        }
-
-        int getDegeIndex(PointF point)
-        {
-            int edgeIndex = -1;
-            if (point.X == DS.BBOX.XLeft)
-            {
-                edgeIndex = 0;
-            }
-            else if (point.X == DS.BBOX.XRight)
-            {
-                edgeIndex = 1;
-            }
-            else if (point.Y == DS.BBOX.YTop)
-            {
-                edgeIndex = 2;
-            }
-            else if (point.Y == DS.BBOX.YBottom)
-            {
-                edgeIndex = 3;
-            }
-            return edgeIndex;
-        }
-
-
-        public void connect()
-        {
-            int num = DS.TriangleNum;
-            int count = DS.TriangleNum+4;
-            if(DS.BBOX.leftBarycenter.Count>0){
-                
-
-                //DS.Barycenters[num].AdjIndexs[0] = count;
-
-                //for (int i = 0; i < DS.BBOX.leftBarycenter.Count - 1; i++,count++)
-                //{
-                //    DS.Barycenters[count] = DS.BBOX.leftBarycenter[i];
-                //    DS.Barycenters[count].AdjIndexs.Add(num);
-                //}
-   
-            }
-            
-        }
-
-        public int CompareX(Barycenter obj1, Barycenter obj2)
-        {
-            if (obj1.X > obj2.X)
-            {
-                return 1;
-            }
-            else if (obj1.X < obj2.X)
-            {
-                return -1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        public int CompareY(Barycenter obj1, Barycenter obj2)
-        {
-            if (obj1.Y > obj2.Y)
-            {
-                return 1;
-            }
-            else if (obj1.Y < obj2.Y)
-            {
-                return -1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-
-
-
-        public void doStartSearch(int edgeIndex)
-        {
-            //起始处
-            if (!DS.TinEdges[edgeIndex].NotHullEdge) //△边为凸壳边
-            {
-                PointF endPnt = getEndPntVorEdge(edgeIndex);
-                DS.Polygon[DS.PolygonNum].addVertex(endPnt);
-                long triangleIndex = DS.TinEdges[edgeIndex].AdjTriangle1ID;
-                PointF p = new PointF(Convert.ToSingle(DS.Barycenters[triangleIndex].X), Convert.ToSingle(DS.Barycenters[triangleIndex].Y));
-                DS.Polygon[DS.PolygonNum].addVertex(p);
-                //doSearch(edgeIndex, triangleIndex);
-             }
-        }
-
-        public void doSearch(long edgeIndex)
-        {
-
-            //if (!DS.TinEdges[edgeIndex].NotHullEdge) //△边为凸壳边
-            //{
-            //    long index1 = DS.TinEdges[edgeIndex].AdjTriangle1ID;
-            //    for (int i = 0; i < DS.Barycenters[index1].AdjIndexs.Count; i++)
-            //    {
-            //        doSearch(DS.Barycenters[index1].AdjIndexs[i]);
-            //    }
-
-            //}
-
-            
-            //long index2 = DS.TinEdges[edgeIndex].AdjTriangle2ID;
-
-
-            //for (int i = 0; i < DS.Barycenters[edgeIndex].AdjIndexs.Count; i++)
-            //{
-            //    doSearch(DS.Barycenters[edgeIndex].AdjIndexs[i]);
-            //}
-            
-
-        }
-
+     
 
 
         //增量法生成Delaunay三角网
@@ -386,7 +240,7 @@ namespace TINVoronoi
             //建立凸壳并三角剖分
             CreateConvex();
             
-           HullTriangulation();
+            HullTriangulation();
 
             //逐点插入
             PlugInEveryVertex();
@@ -522,6 +376,7 @@ namespace TINVoronoi
                 bcX = (k1 * MidX1 - k2 * MidX2 + MidY2 - MidY1) / (k1 - k2);
                 bcY = k1 * (bcX - MidX1) + MidY1;
             }
+            //Debug.Log("BC:" + bcX + "," + bcY);
         }
 
         //判断点是否在△的外接圆中
@@ -541,7 +396,7 @@ namespace TINVoronoi
                 return false;
         }
 
-        //建立Edge的拓扑关系
+
         public void TopologizeEdge()
         {
             DS.TinEdgeNum = 0;
@@ -565,14 +420,13 @@ namespace TINVoronoi
                     {
                         if (Edge.Compare(e, DS.TinEdges[k]))   //此边已构造
                         {
-                            long index1 = DS.TinEdges[i].AdjTriangle1ID;
-                            long index2 = DS.TinEdges[i].AdjTriangle2ID;
-                            //DS.Barycenters[index1].AdjIndexs.Add(index1);
-                            //DS.Barycenters[index2].AdjIndexs.Add(index2);
-                            DS.connectMap[index1,index2] = true;
-                            DS.connectMap[index2,index1] = true;
                             DS.TinEdges[k].AdjTriangle2ID = i;
                             DS.TinEdges[k].NotHullEdge = true;
+                            long index1 = DS.TinEdges[k].AdjTriangle1ID;
+                            long index2 = DS.TinEdges[k].AdjTriangle2ID;
+                            DS.connectMap[index1, index2] = true;
+                            DS.connectMap[index2, index1] = true;
+                            
                             break;
                         }
                     }//for
@@ -589,6 +443,7 @@ namespace TINVoronoi
                 }//for,每条边
             }//for,每个△
         }
+ 
 
         //i为TinEdge的ID号
         private PointF getEndPntVorEdge(int i)
@@ -606,10 +461,12 @@ namespace TINVoronoi
                 Convert.ToSingle(DS.Barycenters[DS.TinEdges[i].AdjTriangle1ID].Y));  //外接圆心
             PointF EndPnt = new PointF();   //圆心连接于此点构成VEdge
 
+            //Debug.Log(BaryCnt.ToString());
+
             //圆心在box外则直接跳过
             if (!(BaryCnt.X >= DS.BBOX.XLeft && BaryCnt.X <= DS.BBOX.XRight &&
                 BaryCnt.Y >= DS.BBOX.YTop && BaryCnt.Y <= DS.BBOX.YBottom))    
-                return new PointF();
+                return EndPnt;
 
             //求斜率
             float k = 0;  //斜率
@@ -742,6 +599,20 @@ namespace TINVoronoi
         {
             return (point.X >= DS.BBOX.XLeft && point.X <= DS.BBOX.XRight &&
                     point.Y >= DS.BBOX.YTop && point.Y <= DS.BBOX.YBottom);
+        }
+
+        private PointF getCenter(Polygon polygon)
+        {
+            float x = 0;
+            float y = 0; 
+            for (int i = 0; i < polygon.points.Count; i++)
+            {
+                x += polygon.points[i].X;
+                y += polygon.points[i].Y;
+            }
+            x /= polygon.points.Count;
+            y /= polygon.points.Count;
+            return new PointF(x, y);
         }
     }
 }

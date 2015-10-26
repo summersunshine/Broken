@@ -31,13 +31,13 @@ public class Window : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         D_TIN.DS.BBOX.XLeft = -50;
-        D_TIN.DS.BBOX.YTop = 50;
+        D_TIN.DS.BBOX.YTop = -50;
         D_TIN.DS.BBOX.XRight = 50;
-        D_TIN.DS.BBOX.YBottom = -50;
+        D_TIN.DS.BBOX.YBottom = 50;
 
         Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
 
-        createRandomVertexs(20, RandomType.circle, 20);
+        createRandomVertexs(5, RandomType.circle, 10);
         //addVertex(new Vector2(50, 50));
         //addVertex(new Vector2(50, -50));
         //addVertex(new Vector2(-50, 50));
@@ -110,6 +110,7 @@ public class Window : MonoBehaviour {
 
         splitMesh(mesh);
 
+        D_TIN.CalculateBC();
         D_TIN.CreateVoronoi(scene);
        // plane.SetActive(false);
        
