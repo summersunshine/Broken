@@ -120,6 +120,8 @@ namespace TINVoronoi
     {
         public double X;
         public double Y;
+        public bool isOutBox;
+
         public PointF point
         {
             get

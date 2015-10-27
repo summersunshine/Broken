@@ -37,7 +37,7 @@ public class Window : MonoBehaviour {
 
         Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
 
-        createRandomVertexs(5, RandomType.circle, 10);
+        createRandomVertexs(4, RandomType.circle, 20);
         //addVertex(new Vector2(50, 50));
         //addVertex(new Vector2(50, -50));
         //addVertex(new Vector2(-50, 50));
@@ -91,29 +91,88 @@ public class Window : MonoBehaviour {
         if (D_TIN.DS.VerticesNum > 2)  //构建三角网
             D_TIN.CreateTIN();
 
-        Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
-        mesh.SetVertices(getVertics(D_TIN.DS.Vertex));
+        //Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
+        //mesh.SetVertices(getVertics(D_TIN.DS.Vertex));
 
-        int[] triangles = new int[D_TIN.DS.TriangleNum * 3];
-        for (int i = 0; i < D_TIN.DS.TriangleNum; i++)
-        {
-            triangles[3 * i + 0] = (int)D_TIN.DS.Triangle[i].V1Index;
-            triangles[3 * i + 1] = (int)D_TIN.DS.Triangle[i].V2Index;
-            triangles[3 * i + 2] = (int)D_TIN.DS.Triangle[i].V3Index;
-        }
+        //int[] triangles = new int[D_TIN.DS.TriangleNum * 3];
+        //for (int i = 0; i < D_TIN.DS.TriangleNum; i++)
+        //{
+        //    triangles[3 * i + 0] = (int)D_TIN.DS.Triangle[i].V1Index;
+        //    triangles[3 * i + 1] = (int)D_TIN.DS.Triangle[i].V2Index;
+        //    triangles[3 * i + 2] = (int)D_TIN.DS.Triangle[i].V3Index;
+        //}
 
-        mesh.triangles = triangles;
+        //mesh.triangles = triangles;
         
-        plane.GetComponent<MeshCollider>().sharedMesh = mesh;
+        //plane.GetComponent<MeshCollider>().sharedMesh = mesh;
 
-        print(mesh);
+        //print(mesh);
 
-        splitMesh(mesh);
+        //splitMesh(mesh);
 
         D_TIN.CalculateBC();
         D_TIN.CreateVoronoi(scene);
-       // plane.SetActive(false);
+        for (int i = 0; i < D_TIN.polygons.Count; i++)
+        {
+            setMeshByPolygon(D_TIN.polygons[i]);
+        }
        
+       
+    }
+
+    public void setMeshByPolygon(Polygon polygon)
+    {
+        Mesh subMesh = new Mesh();
+        subMesh.vertices = getVerticesByPolygon(polygon);
+        subMesh.triangles = getTrianglesByPolygon(polygon);
+        subMesh.RecalculateNormals();
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        go.GetComponent<MeshFilter>().mesh = subMesh;
+        go.GetComponent<MeshCollider>().sharedMesh = subMesh;
+        go.GetComponent<MeshCollider>().convex = true;
+        //go.AddComponent<Rigidbody>();
+        go.transform.parent = scene.transform;
+    }
+
+
+    public Vector3[] getVerticesByPolygon(Polygon polygon)
+    {
+        polygon.addVertex(getCenter(polygon));
+        Vector3[] vertics = new Vector3[polygon.points.Count];
+        for (int i = 0; i < polygon.points.Count; i++)
+        {
+            vertics[i] = new Vector3(polygon.points[i].X, 0, polygon.points[i].Y);
+        }
+        return vertics;
+    }
+
+    public int[] getTrianglesByPolygon(Polygon polygon)
+    {
+        int triangleCount = polygon.points.Count-1;
+        int[] triangles = new int[3 * triangleCount];
+        for (int i = 0; i < triangleCount; i++)
+        {
+            triangles[i * 3] = i;
+            triangles[i * 3 + 1] = (i + 1) % (triangleCount);
+            triangles[i * 3 + 2] = triangleCount;
+        }
+        return triangles;
+    }
+
+
+
+    private PointF getCenter(Polygon polygon)
+    {
+        float x = 0;
+        float y = 0;
+        for (int i = 0; i < polygon.points.Count; i++)
+        {
+            x += polygon.points[i].X;
+            y += polygon.points[i].Y;
+        }
+        x /= polygon.points.Count;
+        y /= polygon.points.Count;
+        return new PointF(x, y);
     }
 
     public List<Vector3> getVertics(Vertex[] Vertex)

@@ -10,7 +10,7 @@ namespace TINVoronoi
         public DataStruct DS = new DataStruct();  //数据结构
         //List<PointF> pointsList  = new List<PointF>();
         List<PointF> startIndexs = new List<PointF>();
-        List<Polygon> polygons = new List<Polygon>();
+        public List<Polygon> polygons = new List<Polygon>();
 
         //构建并显示Voronoi图
         public void CreateVoronoi(GameObject scene)
@@ -35,6 +35,7 @@ namespace TINVoronoi
                         Barycenter barycenter = new Barycenter();
                         barycenter.X = endPnt.X;
                         barycenter.Y = endPnt.Y;
+                        barycenter.isOutBox = false;
                         DS.Barycenters[DS.TriangleNum] = barycenter;
                         DS.TriangleNum++;
                     }
@@ -72,23 +73,27 @@ namespace TINVoronoi
             //    go.name = i.ToString();
             //}
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < polygons.Count; i++)
             {
                 Polygon polygon = polygons[i];
                 modifyPolygon(ref polygon);
-                LineRenderer lineRender = scene.GetComponent<LineRenderer>();
-                lineRender.SetVertexCount(polygons[i].points.Count+1);
-                for (int j = 0; j <= polygons[i].points.Count; j++)
+                //LineRenderer lineRender = scene.GetComponent<LineRenderer>();
+                //lineRender.SetVertexCount(polygons[i].points.Count + 1);
+                //PointF centerPoint = getCenter(polygons[i]);
+
+
+
+                for (int j = 0; j < polygons[i].points.Count; j++)
                 {
-                    int x = (int)polygons[i].points[j % polygons[i].points.Count].X;
-                    int y = (int)polygons[i].points[j % polygons[i].points.Count].Y;
+                    float x = (float)polygons[i].points[j % polygons[i].points.Count].X;
+                    float y = (float)polygons[i].points[j % polygons[i].points.Count].Y;
                     GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
                     go.transform.localPosition = new Vector3(x, 0, y);
                     go.transform.parent = scene.transform;
                     go.name = i.ToString();
                     //Debug.Log()
-                    
-                    lineRender.SetPosition(j, new Vector3(x, 0, y));
+
+                    //lineRender.SetPosition(j, new Vector3(x, 0, y));
                 }
                 
             }
@@ -105,39 +110,39 @@ namespace TINVoronoi
             if (firstIndex == lastIndex)
                 return;
 
-            if (firstIndex % 2 == 1 && lastIndex % 2 == 1)
-            {
-                PointF point = new PointF();
-                point.X = getBoundary(0);
-                point.Y = getBoundary(1);
-                if (isShunshizhen(point, first, polygon.points[2]))
-                {
-                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
-                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
-                }
-                else
-                {
-                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
-                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
-                }
-            }
-            if (firstIndex % 2 == 0 && lastIndex % 2 == 0)
-            {
-                PointF point = new PointF();
-                point.X = getBoundary(0);
-                point.Y = getBoundary(1);
-                if (isShunshizhen(point, first, polygon.points[2]))
-                {
-                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
-                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+            //if (firstIndex % 2 == 1 && lastIndex % 2 == 1)
+            //{
+            //    PointF point = new PointF();
+            //    point.X = getBoundary(0);
+            //    point.Y = getBoundary(1);
+            //    if (isShunshizhen(point, first, polygon.points[2]))
+            //    {
+            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
+            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
+            //    }
+            //    else
+            //    {
+            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
+            //    }
+            //}
+            //if (firstIndex % 2 == 0 && lastIndex % 2 == 0)
+            //{
+            //    PointF point = new PointF();
+            //    point.X = getBoundary(0);
+            //    point.Y = getBoundary(1);
+            //    if (isShunshizhen(point, first, polygon.points[2]))
+            //    {
+            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
+            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
 
-                }
-                else
-                {
-                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
-                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
-                }
-            }
+            //    }
+            //    else
+            //    {
+            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
+            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
+            //    }
+            //}
 
             if (firstIndex % 2 == 0 && lastIndex % 2 == 1)
             {
@@ -208,7 +213,8 @@ namespace TINVoronoi
             {
 
                 PointF nextPoint = DS.Barycenters[nextIndex].point;
-                if (DS.connectMap[currIndex, nextIndex] &&//如果是联通的
+                if (!DS.Barycenters[nextIndex].isOutBox &&
+                    DS.connectMap[currIndex, nextIndex] &&//如果是联通的
                     lastIndex != nextIndex) //不是前面一个index
                 {
                     //搜到起始点了
@@ -228,7 +234,7 @@ namespace TINVoronoi
 
         public bool isShunshizhen(PointF lasPoint, PointF currPoint, PointF nextPoint)
         {
-            return (currPoint.X - lasPoint.X) * (nextPoint.Y - currPoint.Y) - (currPoint.Y - lasPoint.Y) * (nextPoint.X - currPoint.X) > 0;
+            return (currPoint.X - lasPoint.X) * (nextPoint.Y - currPoint.Y) - (currPoint.Y - lasPoint.Y) * (nextPoint.X - currPoint.X) < 0;
         }
 
      
@@ -335,6 +341,16 @@ namespace TINVoronoi
                 x3 = DS.Vertex[DS.Triangle[i].V3Index].x;
                 y3 = DS.Vertex[DS.Triangle[i].V3Index].y;
                 GetTriangleBarycnt(x1, y1, x2, y2, x3, y3, ref DS.Barycenters[i].X, ref DS.Barycenters[i].Y);
+
+                if (!(DS.Barycenters[i].X >= DS.BBOX.XLeft && DS.Barycenters[i].X <= DS.BBOX.XRight &&
+               DS.Barycenters[i].Y >= DS.BBOX.YTop && DS.Barycenters[i].Y <= DS.BBOX.YBottom))
+                {
+                    DS.Barycenters[i].isOutBox = true;
+                }
+                else
+                {
+                    DS.Barycenters[i].isOutBox = false;
+                }
             }
 
         }
@@ -601,19 +617,7 @@ namespace TINVoronoi
                     point.Y >= DS.BBOX.YTop && point.Y <= DS.BBOX.YBottom);
         }
 
-        private PointF getCenter(Polygon polygon)
-        {
-            float x = 0;
-            float y = 0; 
-            for (int i = 0; i < polygon.points.Count; i++)
-            {
-                x += polygon.points[i].X;
-                y += polygon.points[i].Y;
-            }
-            x /= polygon.points.Count;
-            y /= polygon.points.Count;
-            return new PointF(x, y);
-        }
+
     }
 }
 
