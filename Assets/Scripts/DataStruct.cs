@@ -66,9 +66,9 @@ namespace TINVoronoi
     //离散点
     public struct Vertex
     {
-        public long x;
-        public long y;
-        public long ID;
+        public float x;
+        public float y;
+        public int ID;
         public int isHullEdge; //凸壳顶点标记,系统初始化为0
 
         //相等则返回true
@@ -81,14 +81,14 @@ namespace TINVoronoi
     //边
     public struct Edge
     {
-        public long Vertex1ID;   //点索引
-        public long Vertex2ID;
+        public int Vertex1ID;   //点索引
+        public int Vertex2ID;
         public Boolean NotHullEdge;  //非凸壳边
-        public long AdjTriangle1ID;
-        public long AdjacentT1V3;    //△1的第三顶点在顶点数组的索引
-        public long AdjTriangle2ID;
+        public int AdjTriangle1ID;
+        public int AdjacentT1V3;    //△1的第三顶点在顶点数组的索引
+        public int AdjTriangle2ID;
 
-        public Edge(long iV1, long iV2)
+        public Edge(int iV1, int iV2)
         {
             Vertex1ID = iV1;
             Vertex2ID = iV2;
@@ -110,16 +110,16 @@ namespace TINVoronoi
     //三角形
     public struct Triangle
     {
-        public long V1Index; //点在链表中的索引值
-        public long V2Index;
-        public long V3Index;
+        public int V1Index; //点在链表中的索引值
+        public int V2Index;
+        public int V3Index;
     }
 
     //外接圆心
     public struct Barycenter
     {
-        public double X;
-        public double Y;
+        public float X;
+        public float Y;
         public bool isOutBox;
 
         public PointF point
@@ -134,10 +134,10 @@ namespace TINVoronoi
 
     public class BoundaryBox
     {
-        public long XLeft;
-        public long YTop;
-        public long XRight;
-        public long YBottom;
+        public int XLeft;
+        public int YTop;
+        public int XRight;
+        public int YBottom;
     }
 
     public class Polygon
@@ -167,8 +167,6 @@ namespace TINVoronoi
         public Barycenter[] Barycenters = new Barycenter[MaxTriangles]; //外接圆心
         public Edge[] TinEdges = new Edge[MaxEdges];
         public BoundaryBox BBOX = new BoundaryBox();  //图副边界框
-        public Polygon[] Polygon = new Polygon[MaxPolygons];
-        //public PointF [] pointList = new PointF[];
         public bool[,] connectMap = new bool[MaxTriangles, MaxTriangles];
         public int VerticesNum = 0;
         public int TinEdgeNum = 0;

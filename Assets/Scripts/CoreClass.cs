@@ -27,7 +27,7 @@ namespace TINVoronoi
                     if (!endPnt.Equals(new PointF(0,0)))
                     {
                         //起始
-                        long index = DS.TinEdges[i].AdjTriangle1ID;
+                        int index = DS.TinEdges[i].AdjTriangle1ID;
 
                         DS.connectMap[index, DS.TriangleNum] = true;
                         DS.connectMap[DS.TriangleNum, index] = true;
@@ -62,41 +62,57 @@ namespace TINVoronoi
                 searchMap(lastIndex, lastIndex, currIndex);
             }
 
-
-            //for (int i = 0; i < DS.TriangleNum;i++ )
-            //{
-            //    int x = (int)DS.Barycenters[i].X;
-            //    int y = (int)DS.Barycenters[i].Y;
-            //    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            //    go.transform.localPosition = new Vector3(x, 0, y);
-            //    go.transform.parent = scene.transform;
-            //    go.name = i.ToString();
-            //}
-
-            for (int i = 0; i < polygons.Count; i++)
+            for (int i = 0; i < DS.TriangleNum; i++)
             {
-                Polygon polygon = polygons[i];
-                modifyPolygon(ref polygon);
-                //LineRenderer lineRender = scene.GetComponent<LineRenderer>();
-                //lineRender.SetVertexCount(polygons[i].points.Count + 1);
-                //PointF centerPoint = getCenter(polygons[i]);
-
-
-
-                for (int j = 0; j < polygons[i].points.Count; j++)
+                for (int j = 0; j < DS.TriangleNum; j++)
                 {
-                    float x = (float)polygons[i].points[j % polygons[i].points.Count].X;
-                    float y = (float)polygons[i].points[j % polygons[i].points.Count].Y;
-                    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    go.transform.localPosition = new Vector3(x, 0, y);
-                    go.transform.parent = scene.transform;
-                    go.name = i.ToString();
-                    //Debug.Log()
-
-                    //lineRender.SetPosition(j, new Vector3(x, 0, y));
+                    if (DS.connectMap[i,j])
+                    {
+                        Polygon polygon = new Polygon();
+                        PointF lastPoint = DS.Barycenters[i].point;
+                        PointF currPoint = DS.Barycenters[j].point;
+                        polygon.addVertex(lastPoint);
+                        polygon.addVertex(currPoint);
+                        polygons.Add(polygon);
+                        searchMap(i, i, j);
+                    }
                 }
-                
             }
+
+                //for (int i = 0; i < DS.TriangleNum;i++ )
+                //{
+                //    int x = (int)DS.Barycenters[i].X;
+                //    int y = (int)DS.Barycenters[i].Y;
+                //    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                //    go.transform.localPosition = new Vector3(x, 0, y);
+                //    go.transform.parent = scene.transform;
+                //    go.name = i.ToString();
+                //}
+
+                for (int i = 0; i < polygons.Count; i++)
+                {
+                    Polygon polygon = polygons[i];
+                    modifyPolygon(ref polygon);
+                    //LineRenderer lineRender = scene.GetComponent<LineRenderer>();
+                    //lineRender.SetVertexCount(polygons[i].points.Count + 1);
+                    //PointF centerPoint = getCenter(polygons[i]);
+
+
+
+                    for (int j = 0; j < polygons[i].points.Count; j++)
+                    {
+                        float x = (float)polygons[i].points[j % polygons[i].points.Count].X;
+                        float y = (float)polygons[i].points[j % polygons[i].points.Count].Y;
+                        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                        go.transform.localPosition = new Vector3(x, 0, y);
+                        go.transform.parent = scene.transform;
+                        go.name = i.ToString();
+                        //Debug.Log()
+
+                        //lineRender.SetPosition(j, new Vector3(x, 0, y));
+                    }
+
+                }
         }
 
         private void modifyPolygon(ref Polygon polygon)
@@ -110,39 +126,39 @@ namespace TINVoronoi
             if (firstIndex == lastIndex)
                 return;
 
-            //if (firstIndex % 2 == 1 && lastIndex % 2 == 1)
-            //{
-            //    PointF point = new PointF();
-            //    point.X = getBoundary(0);
-            //    point.Y = getBoundary(1);
-            //    if (isShunshizhen(point, first, polygon.points[2]))
-            //    {
-            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
-            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
-            //    }
-            //    else
-            //    {
-            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
-            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
-            //    }
-            //}
-            //if (firstIndex % 2 == 0 && lastIndex % 2 == 0)
-            //{
-            //    PointF point = new PointF();
-            //    point.X = getBoundary(0);
-            //    point.Y = getBoundary(1);
-            //    if (isShunshizhen(point, first, polygon.points[2]))
-            //    {
-            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
-            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+            if (firstIndex % 2 == 1 && lastIndex % 2 == 1)
+            {
+                PointF point = new PointF();
+                point.X = getBoundary(0);
+                point.Y = getBoundary(3);
+                if (isShunshizhen(point, first, polygon.points[2]))
+                {
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
+                }
+                else
+                {
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+                }
+            }
+            if (firstIndex % 2 == 0 && lastIndex % 2 == 0)
+            {
+                PointF point = new PointF();
+                point.X = getBoundary(2);
+                point.Y = getBoundary(3);
+                if (isShunshizhen(point, first, polygon.points[2]))
+                {
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
 
-            //    }
-            //    else
-            //    {
-            //        polygon.addVertex(new PointF(getBoundary(2), getBoundary(3)));
-            //        polygon.addVertex(new PointF(getBoundary(0), getBoundary(3)));
-            //    }
-            //}
+                }
+                else
+                {
+                    polygon.addVertex(new PointF(getBoundary(2), getBoundary(1)));
+                    polygon.addVertex(new PointF(getBoundary(0), getBoundary(1)));
+                }
+            }
 
             if (firstIndex % 2 == 0 && lastIndex % 2 == 1)
             {
@@ -162,7 +178,7 @@ namespace TINVoronoi
         }
 
 
-        long getBoundary(int index)
+        int getBoundary(int index)
         {
             if (index == 0)
             {
@@ -186,19 +202,19 @@ namespace TINVoronoi
         int getEdgeIndex(PointF point)
         {
             int edgeIndex = -1;
-            if (Math.Abs(point.X - DS.BBOX.XLeft) < 0.1)
+            if (Math.Abs(point.X - DS.BBOX.XLeft) < 0.001)
             {
                 edgeIndex = 0;
             }
-            else if (Math.Abs(point.Y - DS.BBOX.YTop) < 0.1)
+            else if (Math.Abs(point.Y - DS.BBOX.YTop) < 0.001)
             {
                 edgeIndex = 1;
             }
-            else if (Math.Abs(point.X - DS.BBOX.XRight) < 0.1)
+            else if (Math.Abs(point.X - DS.BBOX.XRight) < 0.001)
             {
                 edgeIndex = 2;
             }
-            else if (Math.Abs(point.Y - DS.BBOX.YBottom) < 0.1)
+            else if (Math.Abs(point.Y - DS.BBOX.YBottom) < 0.001)
             {
                 edgeIndex = 3;
             }
@@ -213,7 +229,7 @@ namespace TINVoronoi
             {
 
                 PointF nextPoint = DS.Barycenters[nextIndex].point;
-                if (!DS.Barycenters[nextIndex].isOutBox &&
+                if (//!DS.Barycenters[nextIndex].isOutBox &&
                     DS.connectMap[currIndex, nextIndex] &&//如果是联通的
                     lastIndex != nextIndex) //不是前面一个index
                 {
@@ -330,7 +346,7 @@ namespace TINVoronoi
         //计算外接圆圆心
         public void CalculateBC()
         {
-            double x1, y1, x2, y2, x3, y3;
+            float x1, y1, x2, y2, x3, y3;
             for (int i = 0; i < DS.TriangleNum; i++)
             {
                 //计算△的外接圆心
@@ -356,10 +372,10 @@ namespace TINVoronoi
         }
 
         //求△的外接圆心
-        private void GetTriangleBarycnt(double x1, double y1, double x2, double y2, double x3, double y3, ref double bcX, ref double bcY)
+        private void GetTriangleBarycnt(float x1, float y1, float x2, float y2, float x3, float y3, ref float bcX, ref float bcY)
         {
-            double precision = 0.000001;
-            double k1, k2;   //两条中垂线斜率
+            float precision = 0.000001f;
+            float k1, k2;   //两条中垂线斜率
 
             //三点共线
             if (Math.Abs(y1 - y2) < precision && Math.Abs(y2 - y3) < precision)
@@ -368,10 +384,10 @@ namespace TINVoronoi
             }
 
             //边的中点
-            double MidX1 = (x1 + x2) / 2;
-            double MidY1 = (y1 + y2) / 2;
-            double MidX2 = (x3 + x2) / 2;
-            double MidY2 = (y3 + y2) / 2;
+            float MidX1 = (x1 + x2) / 2;
+            float MidY1 = (y1 + y2) / 2;
+            float MidX2 = (x3 + x2) / 2;
+            float MidY2 = (y3 + y2) / 2;
 
             if (Math.Abs(y2 - y1) < precision)  //p1p2平行于X轴
             {
@@ -396,11 +412,11 @@ namespace TINVoronoi
         }
 
         //判断点是否在△的外接圆中
-        private Boolean InTriangleExtCircle(double xp, double yp, double x1, double y1, double x2, double y2, double x3, double y3)
+        private Boolean InTriangleExtCircle(float xp, float yp, float x1, float y1, float x2, float y2, float x3, float y3)
         {
-            double RadiusSquare;    //半径的平方
-            double DisSquare;  //距离的平方
-            double BaryCntX = 0, BaryCntY = 0;
+            float RadiusSquare;    //半径的平方
+            float DisSquare;  //距离的平方
+            float BaryCntX = 0, BaryCntY = 0;
             GetTriangleBarycnt(x1, y1, x2, y2, x3, y3, ref  BaryCntX, ref BaryCntY);
 
             RadiusSquare = (x1 - BaryCntX) * (x1 - BaryCntX) + (y1 - BaryCntY) * (y1 - BaryCntY);
@@ -417,7 +433,7 @@ namespace TINVoronoi
         {
             DS.TinEdgeNum = 0;
             DS.TinEdges = new Edge[DataStruct.MaxEdges];   //清除旧数据
-            long[] Vindex = new long[3]; //3个顶点索引
+            int[] Vindex = new int[3]; //3个顶点索引
 
             //遍历每个△的三条边
             for (int i = 0; i < DS.TriangleNum; i++)
@@ -438,8 +454,8 @@ namespace TINVoronoi
                         {
                             DS.TinEdges[k].AdjTriangle2ID = i;
                             DS.TinEdges[k].NotHullEdge = true;
-                            long index1 = DS.TinEdges[k].AdjTriangle1ID;
-                            long index2 = DS.TinEdges[k].AdjTriangle2ID;
+                            int index1 = DS.TinEdges[k].AdjTriangle1ID;
+                            int index2 = DS.TinEdges[k].AdjTriangle2ID;
                             DS.connectMap[index1, index2] = true;
                             DS.connectMap[index2, index1] = true;
                             
@@ -477,7 +493,7 @@ namespace TINVoronoi
                 Convert.ToSingle(DS.Barycenters[DS.TinEdges[i].AdjTriangle1ID].Y));  //外接圆心
             PointF EndPnt = new PointF();   //圆心连接于此点构成VEdge
 
-            //Debug.Log(BaryCnt.ToString());
+            Debug.Log(BaryCnt.ToString());
 
             //圆心在box外则直接跳过
             if (!(BaryCnt.X >= DS.BBOX.XLeft && BaryCnt.X <= DS.BBOX.XRight &&
@@ -577,7 +593,7 @@ namespace TINVoronoi
         }
 
         //？？？？？？Unused？点在△内则返回true
-        private bool PointInTriganle(long PntIndex, long index)
+        private bool PointInTriganle(int PntIndex, int index)
         {
             PointF pnt1 = new PointF(Convert.ToSingle(DS.Vertex[DS.Triangle[index].V1Index].x),
                 Convert.ToSingle(DS.Vertex[DS.Triangle[index].V1Index].y));
@@ -588,7 +604,7 @@ namespace TINVoronoi
             PointF JudgePoint = new PointF(Convert.ToSingle(DS.Barycenters[index].X), Convert.ToSingle(DS.Barycenters[index].Y));  //外接圆心
 
             int IsPositive;    //正则等于1，负则等于-1
-            double result = VectorXMultiply(JudgePoint, pnt1, pnt2);
+            float result = VectorXMultiply(JudgePoint, pnt1, pnt2);
             if (result > 0)
                 IsPositive = 1;
             else
@@ -605,7 +621,7 @@ namespace TINVoronoi
                 return false;
         }
 
-        private double VectorXMultiply(PointF BaryCnt, PointF pnt1, PointF pnt2)
+        private float VectorXMultiply(PointF BaryCnt, PointF pnt1, PointF pnt2)
         {
             PointF V1 = new PointF((pnt1.X - BaryCnt.X), (pnt1.Y - BaryCnt.Y));
             PointF V2 = new PointF((pnt2.X - BaryCnt.X), (pnt2.Y - BaryCnt.Y));

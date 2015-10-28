@@ -8,11 +8,11 @@ namespace TINVoronoi
     public partial class Delaynay
     {
        
-        public List<long> HullPoint;  //凸壳顶点链表
+        public List<int> HullPoint;  //凸壳顶点链表
         private struct PntV_ID
         {
-            public long Value;
-            public long ID;
+            public float Value;
+            public int ID;
         }
         
         //建立凸壳
@@ -20,7 +20,7 @@ namespace TINVoronoi
         {
             //初始化凸壳顶点链表
             if (HullPoint == null)
-                HullPoint = new List<long>();
+                HullPoint = new List<int>();
             else
             {
                 for (int i = 0; i < HullPoint.Count; i++)
@@ -34,7 +34,7 @@ namespace TINVoronoi
             MaxMinus.Value = MinMinus.Value = DS.Vertex[0].x - DS.Vertex[0].y;
             MaxAdd.Value = MinAdd.Value = DS.Vertex[0].x + DS.Vertex[0].y;
 
-            long temp;
+            float temp;
             for (int i = 1; i < DS.VerticesNum; i++)
             {
                 temp = DS.Vertex[i].x - DS.Vertex[i].y;
@@ -86,7 +86,7 @@ namespace TINVoronoi
                     continue;
 
                 //判断点i与每条边的关系
-                double isOnRight;
+                float isOnRight;
                 for (int j = 0; j < HullPoint.Count; j++)
                 {
                     PointF pnt1 = new PointF(Convert.ToSingle(DS.Vertex[HullPoint[j]].x),
@@ -133,12 +133,12 @@ namespace TINVoronoi
             //多点共边的情况
 
             //复制凸壳顶点
-            List<long> points = new List<long>();
+            List<int> points = new List<int>();
             for (int i = 0; i < HullPoint.Count; i++)
                 points.Add(HullPoint[i]);
 
             //构网
-            long id1, id2, id3;
+            int id1, id2, id3;
             while (points.Count >= 3)
             {
                 for (int i = 0; i < points.Count; i++)
@@ -163,7 +163,7 @@ namespace TINVoronoi
         }
 
         //三角形外接圆中不含其他凸壳顶点
-        private bool IsClean(long p1ID, long p2ID, long p3ID)
+        private bool IsClean(int p1ID, int p2ID, int p3ID)
         {
             for (int i = 0; i < HullPoint.Count; i++)
             {

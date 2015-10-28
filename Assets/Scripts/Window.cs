@@ -37,7 +37,7 @@ public class Window : MonoBehaviour {
 
         Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
 
-        createRandomVertexs(4, RandomType.circle, 20);
+        createRandomVertexs(6, RandomType.circle, 20);
         //addVertex(new Vector2(50, 50));
         //addVertex(new Vector2(50, -50));
         //addVertex(new Vector2(-50, 50));
@@ -63,27 +63,35 @@ public class Window : MonoBehaviour {
 
     }
 
+ 
+
 	
 
     public void addVertex(Vector2 e)
     {
         for (int i = 0; i < D_TIN.DS.VerticesNum; i++)
         {
-            if ((long)e.x == D_TIN.DS.Vertex[i].x && (long)e.y == D_TIN.DS.Vertex[i].y)
-                return;  //若该点已有则不再加入
+            float diffx = D_TIN.DS.Vertex[i].x - e.x;
+            float diffy = D_TIN.DS.Vertex[i].y - e.y;
+            if(Mathf.Sqrt(diffx*diffx+diffy*diffy)<1)
+            {
+                return;
+            }
+            //if ((int)e.x == D_TIN.DS.Vertex[i].x && (int)e.y == D_TIN.DS.Vertex[i].y)
+            //    return;  //若该点已有则不再加入
         }
 
         //加点            
-        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].x = (long)e.x;
-        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].y = (long)e.y;
+        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].x = (int)e.x;
+        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].y = (int)e.y;
         D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].ID = D_TIN.DS.VerticesNum;
         D_TIN.DS.VerticesNum++;
 
-        //GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //sphere.transform.parent = plane.transform;
-        //sphere.transform.localPosition = new Vector3(e.x, 0, e.y);
+        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        sphere.transform.parent = scene.transform;
+        sphere.transform.localPosition = new Vector3(e.x, 0, e.y);
         //sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        //Debug.Log(e);
+        Debug.Log(e);
     }
 
     private void ShowTriangle()
@@ -122,6 +130,10 @@ public class Window : MonoBehaviour {
 
     public void setMeshByPolygon(Polygon polygon)
     {
+        if (polygon.points.Count <= 2)
+            return;
+
+
         Mesh subMesh = new Mesh();
         subMesh.vertices = getVerticesByPolygon(polygon);
         subMesh.triangles = getTrianglesByPolygon(polygon);
