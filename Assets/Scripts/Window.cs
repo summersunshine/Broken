@@ -14,9 +14,12 @@ public class Window : MonoBehaviour {
 
     public List<Vector3> vertexs;
 
-
+    bool isBroken = false;
     GameObject scene;
     GameObject plane;
+    GameObject prefab;
+
+    int realnum = 0;
 
     Delaynay D_TIN = new Delaynay(); //核心功能类
 
@@ -25,41 +28,73 @@ public class Window : MonoBehaviour {
     {
         plane = GameObject.Find("Plane");
         scene = GameObject.Find("Scene");
+        prefab = Resources.Load("Cube", typeof(GameObject)) as GameObject;
     }
 
    
 	// Use this for initialization
 	void Start () {
-        D_TIN.DS.BBOX.XLeft = -50;
-        D_TIN.DS.BBOX.YTop = -50;
-        D_TIN.DS.BBOX.XRight = 50;
-        D_TIN.DS.BBOX.YBottom = 50;
+        D_TIN.DS.BBOX.XLeft = -5;
+        D_TIN.DS.BBOX.YTop = -5;
+        D_TIN.DS.BBOX.XRight = 5;
+        D_TIN.DS.BBOX.YBottom = 5;
 
-        Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
+        //Mesh mesh = plane.GetComponent<MeshFilter>().mesh;
 
-        createRandomVertexs(6, RandomType.circle, 20);
+        //
         //addVertex(new Vector2(50, 50));
         //addVertex(new Vector2(50, -50));
         //addVertex(new Vector2(-50, 50));
         //addVertex(new Vector2(-50, -50));
-        ShowTriangle();
+       // 
 	}
 
-    public void createRandomVertexs(int num,RandomType randomType,int size)
+    void Update()
     {
-        for (int i = 0; i < num; i++)
+         if(Input.GetMouseButton(0) && !isBroken)
+         {
+             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);//从摄像机发出到点击坐标的射线
+             RaycastHit hitInfo;
+             if(Physics.Raycast(ray,out hitInfo))
+             {
+                 Debug.DrawLine(ray.origin,hitInfo.point);//划出射线，只有在scene视图中才能看到
+                 GameObject gameObj = hitInfo.collider.gameObject;
+                 Debug.Log(gameObj.transform.worldToLocalMatrix);
+                 Debug.Log(hitInfo.point);
+                 
+
+                 GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                 go.transform.position = hitInfo.point;
+                 go.transform.SetParent(plane.transform);
+                 isBroken = true;
+                 Vector3 locoal = go.transform.localPosition;
+                 Debug.Log(locoal);
+                 createRandomVertexs(new Vector2(locoal.x,locoal.z), 5, RandomType.circle, 1f);
+                 ShowTriangle();
+             }
+         }
+
+    }
+
+
+    public void createRandomVertexs(Vector2 center, int num,RandomType randomType,float size)
+    {
+        while (realnum < num)
         {
             Vector2 pos = Vector2.zero;
             if (randomType == RandomType.circle)
             {
-                pos = size * UnityEngine.Random.insideUnitCircle;
+                pos = center + size * UnityEngine.Random.insideUnitCircle;
             }
-            else if(randomType == RandomType.rect)
+            else if (randomType == RandomType.rect)
             {
-                pos = new Vector2(UnityEngine.Random.Range(-size, size), UnityEngine.Random.Range(-size, size));
+                pos = center + new Vector2(UnityEngine.Random.Range(-size, size), UnityEngine.Random.Range(-size, size));
             }
+            Debug.Log(pos);
             addVertex(pos);
         }
+
+
 
     }
 
@@ -73,7 +108,7 @@ public class Window : MonoBehaviour {
         {
             float diffx = D_TIN.DS.Vertex[i].x - e.x;
             float diffy = D_TIN.DS.Vertex[i].y - e.y;
-            if(Mathf.Sqrt(diffx*diffx+diffy*diffy)<1)
+            if(Mathf.Sqrt(diffx*diffx+diffy*diffy)<0.1)
             {
                 return;
             }
@@ -82,16 +117,17 @@ public class Window : MonoBehaviour {
         }
 
         //加点            
-        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].x = (int)e.x;
-        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].y = (int)e.y;
+        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].x = e.x;
+        D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].y = e.y;
         D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].ID = D_TIN.DS.VerticesNum;
         D_TIN.DS.VerticesNum++;
 
         GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         sphere.transform.parent = scene.transform;
         sphere.transform.localPosition = new Vector3(e.x, 0, e.y);
-        //sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        Debug.Log(e);
+        sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        realnum++;
+        //Debug.Log(e);
     }
 
     private void ShowTriangle()
@@ -120,6 +156,7 @@ public class Window : MonoBehaviour {
 
         D_TIN.CalculateBC();
         D_TIN.CreateVoronoi(scene);
+        Destroy(plane);
         for (int i = 0; i < D_TIN.polygons.Count; i++)
         {
             setMeshByPolygon(D_TIN.polygons[i]);
@@ -137,23 +174,41 @@ public class Window : MonoBehaviour {
         Mesh subMesh = new Mesh();
         subMesh.vertices = getVerticesByPolygon(polygon);
         subMesh.triangles = getTrianglesByPolygon(polygon);
+        subMesh.uv = getUVByPolygon(polygon);
         subMesh.RecalculateNormals();
-        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        GameObject go = Instantiate(prefab);
+
         go.GetComponent<MeshFilter>().mesh = subMesh;
         go.GetComponent<MeshCollider>().sharedMesh = subMesh;
         go.GetComponent<MeshCollider>().convex = true;
-        //go.AddComponent<Rigidbody>();
+        go.AddComponent<Rigidbody>();
         go.transform.parent = scene.transform;
+        go.transform.localPosition = new Vector3(0, 0, 0);
+    }
+
+    private Vector2[] getUVByPolygon(Polygon polygon)
+    {
+        int verticCount = polygon.points.Count * 2;
+        Vector2[] uv = new Vector2[verticCount];
+        for (int i = 0; i < polygon.points.Count; i++)
+        {
+            uv[2 * i] = new Vector2((5f - polygon.points[i].X)/10f, (5f - polygon.points[i].Y)/10f);
+            uv[2 * i + 1] = new Vector2((5f - polygon.points[i].X) / 10f, (5f - polygon.points[i].Y) / 10f);
+        }
+        return uv;
     }
 
 
     public Vector3[] getVerticesByPolygon(Polygon polygon)
     {
         polygon.addVertex(getCenter(polygon));
-        Vector3[] vertics = new Vector3[polygon.points.Count];
+        int verticCount = polygon.points.Count * 2;
+
+        Vector3[] vertics = new Vector3[verticCount];
         for (int i = 0; i < polygon.points.Count; i++)
         {
-            vertics[i] = new Vector3(polygon.points[i].X, 0, polygon.points[i].Y);
+            vertics[2 * i] = new Vector3(polygon.points[i].X*10, 2, polygon.points[i].Y*10);
+            vertics[2 * i + 1] = new Vector3(polygon.points[i].X*10, -2, polygon.points[i].Y*10);
         }
         return vertics;
     }
@@ -161,12 +216,22 @@ public class Window : MonoBehaviour {
     public int[] getTrianglesByPolygon(Polygon polygon)
     {
         int triangleCount = polygon.points.Count-1;
-        int[] triangles = new int[3 * triangleCount];
+        int verticCount = 2*triangleCount;
+        int[] triangles = new int[12 * triangleCount];
         for (int i = 0; i < triangleCount; i++)
         {
-            triangles[i * 3] = i;
-            triangles[i * 3 + 1] = (i + 1) % (triangleCount);
-            triangles[i * 3 + 2] = triangleCount;
+            triangles[i * 12 + 0] = (2 * i + 0) % verticCount;
+            triangles[i * 12 + 1] = (2 * i + 2) % verticCount;
+            triangles[i * 12 + 2] = verticCount;
+            triangles[i * 12 + 3] = (2 * i + 3) % verticCount;
+            triangles[i * 12 + 4] = (2 * i + 1) % verticCount;
+            triangles[i * 12 + 5] = verticCount + 1;
+            triangles[i * 12 + 6] = (2 * i + 0) % verticCount;
+            triangles[i * 12 + 7] = (2 * i + 1) % verticCount;
+            triangles[i * 12 + 8] = (2 * i + 3) % verticCount;
+            triangles[i * 12 + 9] = (2 * i + 3) % verticCount;
+            triangles[i * 12 + 10] = (2 * i + 2) % verticCount;
+            triangles[i * 12 + 11] = (2 * i + 0) % verticCount;
         }
         return triangles;
     }

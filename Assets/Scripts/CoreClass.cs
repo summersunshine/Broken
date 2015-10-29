@@ -99,18 +99,18 @@ namespace TINVoronoi
 
 
 
-                    for (int j = 0; j < polygons[i].points.Count; j++)
-                    {
-                        float x = (float)polygons[i].points[j % polygons[i].points.Count].X;
-                        float y = (float)polygons[i].points[j % polygons[i].points.Count].Y;
-                        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                        go.transform.localPosition = new Vector3(x, 0, y);
-                        go.transform.parent = scene.transform;
-                        go.name = i.ToString();
-                        //Debug.Log()
+                    //for (int j = 0; j < polygons[i].points.Count; j++)
+                    //{
+                    //    float x = (float)polygons[i].points[j % polygons[i].points.Count].X;
+                    //    float y = (float)polygons[i].points[j % polygons[i].points.Count].Y;
+                    //    GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    //    go.transform.localPosition = new Vector3(x, 0, y);
+                    //    go.transform.parent = scene.transform;
+                    //    go.name = i.ToString();
+                    //    //Debug.Log()
 
-                        //lineRender.SetPosition(j, new Vector3(x, 0, y));
-                    }
+                    //    //lineRender.SetPosition(j, new Vector3(x, 0, y));
+                    //}
 
                 }
         }
@@ -493,7 +493,7 @@ namespace TINVoronoi
                 Convert.ToSingle(DS.Barycenters[DS.TinEdges[i].AdjTriangle1ID].Y));  //外接圆心
             PointF EndPnt = new PointF();   //圆心连接于此点构成VEdge
 
-            Debug.Log(BaryCnt.ToString());
+            //Debug.Log(BaryCnt.ToString());
 
             //圆心在box外则直接跳过
             if (!(BaryCnt.X >= DS.BBOX.XLeft && BaryCnt.X <= DS.BBOX.XRight &&
