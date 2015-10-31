@@ -19,7 +19,7 @@ public class Window : MonoBehaviour {
     GameObject plane;
     GameObject prefab;
 
-    int realnum = 0;
+    //int realnum = 0;
 
     Delaynay D_TIN = new Delaynay(); //核心功能类
 
@@ -34,6 +34,11 @@ public class Window : MonoBehaviour {
    
 	// Use this for initialization
 	void Start () {
+        //D_TIN.DS = new DataStruct();
+        //D_TIN.polygons = new List<Polygon>();
+        //D_TIN.startIndexs = new List<PointF>();
+        //D_TIN.HullPoint = new List<int>();
+   
         D_TIN.DS.BBOX.XLeft = -5;
         D_TIN.DS.BBOX.YTop = -5;
         D_TIN.DS.BBOX.XRight = 5;
@@ -69,7 +74,8 @@ public class Window : MonoBehaviour {
                  isBroken = true;
                  Vector3 locoal = go.transform.localPosition;
                  Debug.Log(locoal);
-                 createRandomVertexs(new Vector2(locoal.x,locoal.z), 5, RandomType.circle, 1f);
+                 go.SetActive(false);
+                 createRandomVertexs(new Vector2(locoal.x,locoal.z), 5, RandomType.circle, 3f);
                  ShowTriangle();
              }
          }
@@ -79,7 +85,7 @@ public class Window : MonoBehaviour {
 
     public void createRandomVertexs(Vector2 center, int num,RandomType randomType,float size)
     {
-        while (realnum < num)
+        while (D_TIN.DS.VerticesNum < num)
         {
             Vector2 pos = Vector2.zero;
             if (randomType == RandomType.circle)
@@ -122,11 +128,11 @@ public class Window : MonoBehaviour {
         D_TIN.DS.Vertex[D_TIN.DS.VerticesNum].ID = D_TIN.DS.VerticesNum;
         D_TIN.DS.VerticesNum++;
 
-        GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphere.transform.parent = scene.transform;
-        sphere.transform.localPosition = new Vector3(e.x, 0, e.y);
-        sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-        realnum++;
+        //GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //sphere.transform.parent = scene.transform;
+        //sphere.transform.localPosition = new Vector3(e.x, 0, e.y);
+        //sphere.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        //realnum++;
         //Debug.Log(e);
     }
 
@@ -156,14 +162,34 @@ public class Window : MonoBehaviour {
 
         D_TIN.CalculateBC();
         D_TIN.CreateVoronoi(scene);
-        Destroy(plane);
+        plane.SetActive(false);
         for (int i = 0; i < D_TIN.polygons.Count; i++)
         {
             setMeshByPolygon(D_TIN.polygons[i]);
         }
-       
-       
+
+        StartCoroutine(Reset());
     }
+    IEnumerator Reset()
+    {
+        yield return new WaitForSeconds(5);
+
+        plane.SetActive(true);
+        isBroken = false;
+
+        //D_TIN.DS = new DataStruct();
+        //D_TIN.polygons = new List<Polygon>();
+        //D_TIN.startIndexs = new List<PointF>();
+        //D_TIN.HullPoint = new List<int>();
+        D_TIN = new Delaynay();
+        D_TIN.DS.BBOX.XLeft = -5;
+        D_TIN.DS.BBOX.YTop = -5;
+        D_TIN.DS.BBOX.XRight = 5;
+        D_TIN.DS.BBOX.YBottom = 5;
+        //realnum = 0;
+    }
+
+
 
     public void setMeshByPolygon(Polygon polygon)
     {
@@ -184,6 +210,8 @@ public class Window : MonoBehaviour {
         go.AddComponent<Rigidbody>();
         go.transform.parent = scene.transform;
         go.transform.localPosition = new Vector3(0, 0, 0);
+
+        DestroyObject(go, 5);
     }
 
     private Vector2[] getUVByPolygon(Polygon polygon)

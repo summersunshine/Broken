@@ -9,7 +9,7 @@ namespace TINVoronoi
     {
         public DataStruct DS = new DataStruct();  //数据结构
         //List<PointF> pointsList  = new List<PointF>();
-        List<PointF> startIndexs = new List<PointF>();
+        public List<PointF> startIndexs = new List<PointF>();
         public List<Polygon> polygons = new List<Polygon>();
 
         //构建并显示Voronoi图
