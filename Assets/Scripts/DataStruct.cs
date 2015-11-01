@@ -1,67 +1,11 @@
-﻿using System;
+﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace TINVoronoi
 {
 
-    public struct PointF
-    {
-        private float x, y;
-
-        //
-        // 摘要: 
-        //     用指定坐标初始化 System.Drawing.PointF 类的新实例。
-        //
-        // 参数: 
-        //   x:
-        //     该点的水平位置。
-        //
-        //   y:
-        //     该点的垂直位置。
-        public PointF(float x = 0, float y = 0)
-        {
-            this.x = x;
-            this.y = y;
-        }
-
-
-
-        //
-        // 摘要: 
-        //     获取或设置此 System.Drawing.PointF 的 x 坐标。
-        //
-        // 返回结果: 
-        //     此 System.Drawing.PointF 的 x 坐标。
-        public float X { get { return x; } set { x = value; } }
-        //
-        // 摘要: 
-        //     获取或设置此 System.Drawing.PointF 的 y 坐标。
-        //
-        // 返回结果: 
-        //     此 System.Drawing.PointF 的 y 坐标。
-        public float Y { get { return y; } set { y = value; } }
-
-
-        public bool Equals(PointF obj)
-        {
-            return this.X == obj.X && this.Y == obj.Y;
-        }
-
-        public static PointF zero
-        {
-            get
-            {
-                return new PointF(0, 0);
-            }
-        }
-
-        public string ToString()
-        {
-            return " " + x + "," + y;
-        }
-
-    }
 
     //离散点
     public struct Vertex
@@ -120,13 +64,12 @@ namespace TINVoronoi
     {
         public float X;
         public float Y;
-        public bool isOutBox;
 
-        public PointF point
+        public Vector2 point
         {
             get
             {
-                return new PointF((float)X, (float)Y);
+                return new Vector2((float)X, (float)Y);
             }
         }
     }
@@ -134,22 +77,24 @@ namespace TINVoronoi
 
     public class BoundaryBox
     {
-        public int XLeft;
-        public int YTop;
-        public int XRight;
-        public int YBottom;
+        public float XLeft = -50f;
+        public float YTop = -50f;
+        public float XRight = 50f;
+        public float YBottom = 50f;
+        public float width = 100f;
+        public float height = 100f;
     }
 
     public class Polygon
     {
         //public int VertexNum;
-        public List<PointF> points = new List<PointF>();
+        public List<Vector2> points = new List<Vector2>();
 
         public Polygon()
         {
 
         }
-        public void addVertex(PointF vertex)
+        public void addVertex(Vector2 vertex)
         {
             points.Add(vertex);
         }
@@ -160,7 +105,7 @@ namespace TINVoronoi
     {
         public static int MaxVertices = 500;
         public static int MaxEdges = 2000;
-        public static int MaxTriangles = 100;
+        public static int MaxTriangles = 20;
         public static int MaxPolygons = 100;
         public Vertex[] Vertex = new Vertex[MaxVertices];
         public Triangle[] Triangle = new Triangle[MaxTriangles];
@@ -171,7 +116,6 @@ namespace TINVoronoi
         public int VerticesNum = 0;
         public int TinEdgeNum = 0;
         public int TriangleNum = 0;
-        public int PolygonNum = 0;
     }
 
 }

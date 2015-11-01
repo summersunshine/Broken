@@ -1,3 +1,4 @@
+using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -89,11 +90,11 @@ namespace TINVoronoi
                 float isOnRight;
                 for (int j = 0; j < HullPoint.Count; j++)
                 {
-                    PointF pnt1 = new PointF(Convert.ToSingle(DS.Vertex[HullPoint[j]].x),
+                    Vector2 pnt1 = new Vector2(Convert.ToSingle(DS.Vertex[HullPoint[j]].x),
                             Convert.ToSingle(DS.Vertex[HullPoint[j]].y));
-                    PointF pnt2 = new PointF(Convert.ToSingle(DS.Vertex[HullPoint[(j + 1) % HullPoint.Count]].x),
+                    Vector2 pnt2 = new Vector2(Convert.ToSingle(DS.Vertex[HullPoint[(j + 1) % HullPoint.Count]].x),
                             Convert.ToSingle(DS.Vertex[HullPoint[(j + 1) % HullPoint.Count]].y));
-                    PointF pnt3 = new PointF(Convert.ToSingle(DS.Vertex[i].x), Convert.ToSingle(DS.Vertex[i].y));
+                    Vector2 pnt3 = new Vector2(Convert.ToSingle(DS.Vertex[i].x), Convert.ToSingle(DS.Vertex[i].y));
                     isOnRight = VectorXMultiply(pnt1, pnt2, pnt3);// >0则位于外侧(设备坐标系，逆时针)
 
                     //如果点在边外侧则修改凸壳
@@ -103,7 +104,7 @@ namespace TINVoronoi
                         HullPoint.Insert((j + 1) % (HullPoint.Count + 1), DS.Vertex[i].ID);
 
                         //判断添加点后是否出现内凹
-                        pnt1 = new PointF(Convert.ToSingle(DS.Vertex[HullPoint[(j + 3) % HullPoint.Count]].x),
+                        pnt1 = new Vector2(Convert.ToSingle(DS.Vertex[HullPoint[(j + 3) % HullPoint.Count]].x),
                             Convert.ToSingle(DS.Vertex[HullPoint[(j + 3) % HullPoint.Count]].y));
                         isOnRight = VectorXMultiply(pnt3, pnt2, pnt1);
                         if (isOnRight > 0)    //删除内凹点p2(即v[j+2])
