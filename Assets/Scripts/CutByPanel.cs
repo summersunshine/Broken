@@ -11,7 +11,6 @@ public class CutByPanel : MonoBehaviour
         Intersect,
     }
 
-    public float lastTime = -1;
     public Vector3 startPosition;
     public Vector3 endPosition;
     public GameObject prefab;
@@ -46,42 +45,50 @@ public class CutByPanel : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (lastTime == -1)
-            {
-                lastTime = Time.time;
-                startPosition = Input.mousePosition;
+            startPosition = Input.mousePosition;
 
-                return;
-            }
-            endPosition = Input.mousePosition;
-            Debug.Log(startPosition);
-            Debug.Log(endPosition);
-            Ray ray = Camera.main.ScreenPointToRay(startPosition);//从摄像机发出到点击坐标的射线
-            RaycastHit hitInfo;
+            return;
 
-            if (Physics.Raycast(ray, out hitInfo))
-            {
-                startPosition = hitInfo.point;
-            }
-            ray = Camera.main.ScreenPointToRay(endPosition);
-            if (Physics.Raycast(ray, out hitInfo))
-            {
-                endPosition = hitInfo.point;
-            }
-            
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            endPosition = getWorldPosition(Input.mousePosition);
+            startPosition = getWorldPosition(startPosition);
+
             Vector3 diff = endPosition - startPosition;
             Vector3 dir = new Vector3(diff.y, -diff.x, 0);
-            startPosition = transform.InverseTransformPoint(startPosition);
-            dir = transform.InverseTransformDirection(dir);
-            cutOrigional = startPosition;
-            cutNormal = dir;
+            cutOrigional = transform.InverseTransformPoint(startPosition);
+            cutNormal = transform.InverseTransformDirection(dir);
 
             CutMesh();
         }
     }
 
+    public Vector3 getWorldPosition(Vector3 position)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(position);//从摄像机发出到点击坐标的射线
+        RaycastHit hitInfo;
+
+        if (Physics.Raycast(ray, out hitInfo))
+        {
+            return hitInfo.point;
+        }
+        else
+        {
+            return position;
+        }
+    }
+
+
     public bool divideToTwoPart(Mesh mesh)
     {
+        verticeTypeList = new List<PositionType>();
+        leftVertics = new List<Vector3>();
+        leftUVs = new List<Vector2>();
+        rightVertics = new List<Vector3>();
+        rightUVs = new List<Vector2>();
+        offset = new Dictionary<int, int>();
         //初始化vertices和uvs
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
@@ -104,14 +111,52 @@ public class CutByPanel : MonoBehaviour
         return leftVertics.Count > 0 && rightVertics.Count > 0;
     }
 
-    public void CutMesh()
+    //加快搜索，有没有用有待验证
+    bool isIntersect(Bounds bounds)
     {
+        Debug.Log(bounds);
+        Vector3 worldOriginoal = this.transform.TransformPoint(cutOrigional);
+        Vector3 worldNormal = this.transform.TransformDirection(cutNormal);
+
+        PositionType lastType = getValue(bounds.min, worldOriginoal, worldNormal)>0?PositionType.Left:PositionType.Right;
+        for (int i = -1; i <= 1; i+=2)
+        {
+            for (int j = -1; j <= 1; j+=2)
+            {
+                for (int k = -1; k <=1; k+=2)
+                {
+                    Vector3 extents = bounds.extents;
+
+                    Vector3 v = bounds.center + new Vector3(i*extents.x,j*extents.y,k*extents.z);
+
+                    PositionType type = getValue(v,worldOriginoal,worldNormal) > 0 ? PositionType.Left : PositionType.Right;
+                    Debug.Log(type);
+                    if(type!=lastType)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+  
+
+    void CutMesh()
+    {
+        //Debug.Log("Cal start " + Time.time);
         Mesh mesh = GetComponent<MeshFilter>().mesh;
+
+        //if (!isIntersect(mesh.bounds))
+        //    return;
 
         //如果被分层了两部分就继续
         //否则就别扯犊子
         if (!divideToTwoPart(mesh))
+        {
             return;
+        }
+          
 
 
 
@@ -130,6 +175,7 @@ public class CutByPanel : MonoBehaviour
                 positionTypes[j] = verticeTypeList[triangles[j]];
 
             }
+
 
             if(isAllInOneSide(positionTypes))
             {
@@ -154,7 +200,7 @@ public class CutByPanel : MonoBehaviour
 
         //更改切割面的三角形
         updateCutPanelTriangle();
-
+        //Debug.Log("Cal over " +Time.time);
         createBrokenChild(rightVertics, rightUVs, rightTriangles);
         createBrokenChild(leftVertics, leftUVs, leftTriangles);
 
@@ -345,6 +391,7 @@ public class CutByPanel : MonoBehaviour
         mesh.uv = uv.ToArray();
         mesh.triangles = t.ToArray();
         mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
         if (go.GetComponent<MeshFilter>())
         {
             go.GetComponent<MeshFilter>().mesh = mesh;
@@ -355,9 +402,16 @@ public class CutByPanel : MonoBehaviour
             go.GetComponent<MeshCollider>().sharedMesh = mesh;
             go.GetComponent<MeshCollider>().convex = true;
         }
+
+        if (go.GetComponent<Rigidbody>())
+        {
+            go.GetComponent<Rigidbody>().AddForce(Vector3.down);
+        }
+
         go.transform.localPosition = transform.localPosition;
         go.transform.localRotation = transform.localRotation;
         go.transform.localScale = transform.localScale;
+        
 
     }
 
