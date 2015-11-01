@@ -11,10 +11,11 @@ public class CutByPanel : MonoBehaviour
         Intersect,
     }
 
+    public bool isWaitCreate = false;
     public Vector3 startPosition;
     public Vector3 endPosition;
     public GameObject prefab;
-
+   
 
     //切割平面过的点
     public Vector3 cutOrigional;
@@ -60,8 +61,17 @@ public class CutByPanel : MonoBehaviour
             Vector3 dir = new Vector3(diff.y, -diff.x, 0);
             cutOrigional = transform.InverseTransformPoint(startPosition);
             cutNormal = transform.InverseTransformDirection(dir);
-
+            isWaitCreate = true;
             CutMesh();
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if(isWaitCreate)
+        {
+            CutMesh();
+            isWaitCreate = false;
         }
     }
 
