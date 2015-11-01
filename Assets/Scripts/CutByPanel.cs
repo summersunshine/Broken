@@ -74,6 +74,11 @@ public class CutByPanel : MonoBehaviour
         List<Vector3> rightVertics = new List<Vector3>(mesh.vertices);
         List<Vector2> leftUVs = new List<Vector2>(mesh.uv);
         List<Vector2> rightUVs = new List<Vector2>(mesh.uv);
+        List<int> leftCutTriangles = new List<int>();
+        List<int> rightCutTriangles = new List<int>();
+        List<Vector3> intersectVertices = new List<Vector3>(); 
+        List<Vector2> intersectUVs = new List<Vector2>(); 
+        Vector3 cutPanelCenter = new Vector3();
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
             float value = getValue(mesh.vertices[i], o, normal);
@@ -121,10 +126,17 @@ public class CutByPanel : MonoBehaviour
 
             Vector3 intersect1 = getIntersectPoint(vertics[otherIndex],vertics[(otherIndex+1)%3],o,normal);
             Vector3 intersect2 = getIntersectPoint(vertics[otherIndex],vertics[(otherIndex+2)%3],o,normal);
+
+            intersectVertices.Add(intersect1);
+            intersectVertices.Add(intersect2);
+            
             float inter1 = Vector3.Distance(vertics[otherIndex],intersect1)/Vector3.Distance(vertics[otherIndex],vertics[(otherIndex+1)%3]);
             float inter2 = Vector3.Distance(vertics[otherIndex],intersect2)/Vector3.Distance(vertics[otherIndex],vertics[(otherIndex+2)%3]);
             Vector2 uv1 = uvs[otherIndex] * (1 - inter1) + uvs[(otherIndex + 1) % 3] * inter1;
             Vector2 uv2 = uvs[otherIndex] * (1 - inter2) + uvs[(otherIndex + 2) % 3] * inter2;
+            intersectUVs.Add(uv1);
+            intersectUVs.Add(uv2);
+
 
             leftVertics.Add(intersect1);
             leftVertics.Add(intersect2);
@@ -164,21 +176,83 @@ public class CutByPanel : MonoBehaviour
             thisSideTriangles.Add(triangles[(otherIndex + 2) % 3]);
             thisSideTriangles.Add(thisSideVerticCount - 1);
             thisSideTriangles.Add(triangles[(otherIndex + 1) % 3]);
-         
-     
+
+
+                
             if (otherSideType == PositionType.Left)
             {
                 leftTriangles.AddRange(otherSideTriangles);
                 rightTriangles.AddRange(thisSideTriangles);
+
+                leftCutTriangles.Add(otherSideVerticCount - 1);
+                leftCutTriangles.Add(otherSideVerticCount - 2);
+                leftCutTriangles.Add(0);
+
+                rightCutTriangles.Add(thisSideVerticCount - 2);
+                rightCutTriangles.Add(thisSideVerticCount - 1);
+                rightCutTriangles.Add(0);
+
             }
             else
             {
                 rightTriangles.AddRange(otherSideTriangles);
                 leftTriangles.AddRange(thisSideTriangles);
+
+                leftCutTriangles.Add(thisSideVerticCount - 2);
+                leftCutTriangles.Add(thisSideVerticCount - 1);
+                leftCutTriangles.Add(0);
+
+                rightCutTriangles.Add(otherSideVerticCount - 1);
+                rightCutTriangles.Add(otherSideVerticCount - 2);
+                rightCutTriangles.Add(0);
+
             }
 
 
         }
+
+        //算中心点
+        for (int i = 0; i < intersectVertices.Count; i++)
+        {
+            cutPanelCenter += intersectVertices[i];  
+        }
+        cutPanelCenter /= intersectVertices.Count;
+        
+
+        leftVertics.Add(cutPanelCenter);
+        rightVertics.Add(cutPanelCenter);
+
+        //算平均uv
+        List<float> distanceList = new List<float>();
+        float totalDistance = 0;
+        for (int i = 0; i < intersectVertices.Count; i++)
+        {
+            float dis = Vector3.Distance(cutPanelCenter, intersectVertices[i]);
+            totalDistance += dis;
+            distanceList.Add(dis);
+        }
+        Vector2 uv = new Vector2();
+        for (int i = 0; i < intersectVertices.Count; i++)
+        {
+            uv += distanceList[i]  * (intersectUVs[i]);
+        }
+        uv /= totalDistance;
+        
+        Debug.Log(uv);
+
+        leftUVs.Add(uv);
+        rightUVs.Add(uv);
+
+        for (int i = 0; i < leftCutTriangles.Count; i += 3)
+        {
+            leftCutTriangles[i + 2] = leftVertics.Count - 1;
+        }
+        leftTriangles.AddRange(leftCutTriangles);
+        for (int i = 0; i < rightCutTriangles.Count; i += 3)
+        {
+            rightCutTriangles[i + 2] = rightVertics.Count - 1;
+        }
+        rightTriangles.AddRange(rightCutTriangles);
 
         createBrokenChild(rightVertics, rightUVs, rightTriangles);
         createBrokenChild(leftVertics, leftUVs, leftTriangles);
@@ -209,7 +283,7 @@ public class CutByPanel : MonoBehaviour
         if (go.GetComponent<MeshCollider>())
         {
             go.GetComponent<MeshCollider>().sharedMesh = mesh;
-            //go.GetComponent<MeshCollider>().convex = true;
+            go.GetComponent<MeshCollider>().convex = true;
         }
         go.transform.localPosition = transform.localPosition;
         go.transform.localRotation = transform.localRotation;
