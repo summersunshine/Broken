@@ -70,26 +70,42 @@ public class CutByPanel : MonoBehaviour
         List<PositionType> traingleTypeList = new List<PositionType>();
         List<int> leftTriangles = new List<int>();
         List<int> rightTriangles = new List<int>();
-        List<Vector3> leftVertics = new List<Vector3>(mesh.vertices);
-        List<Vector3> rightVertics = new List<Vector3>(mesh.vertices);
-        List<Vector2> leftUVs = new List<Vector2>(mesh.uv);
-        List<Vector2> rightUVs = new List<Vector2>(mesh.uv);
+        List<Vector3> leftVertics = new List<Vector3>();
+        List<Vector3> rightVertics = new List<Vector3>();
+        List<Vector2> leftUVs = new List<Vector2>();
+        List<Vector2> rightUVs = new List<Vector2>();
         List<int> leftCutTriangles = new List<int>();
         List<int> rightCutTriangles = new List<int>();
         List<Vector3> intersectVertices = new List<Vector3>(); 
         List<Vector2> intersectUVs = new List<Vector2>(); 
         Vector3 cutPanelCenter = new Vector3();
+
+        //Dictionary<int, int> rightOffset = new Dictionary<int, int>();
+        //Dictionary<int, int> leftOffset = new Dictionary<int, int>();
+        Dictionary<int, int> offset = new Dictionary<int, int>();
+
+        //初始化vertices和uvs
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
             float value = getValue(mesh.vertices[i], o, normal);
             if (value > 0)
             {
                 verticeTypeList.Add(PositionType.Left);
+                leftVertics.Add(mesh.vertices[i]);
+                leftUVs.Add(mesh.uv[i]);
+                offset.Add(i, rightVertics.Count);
             }
             else
             {
                 verticeTypeList.Add(PositionType.Right);
+                rightVertics.Add(mesh.vertices[i]);
+                rightUVs.Add(mesh.uv[i]);
+                offset.Add(i, leftVertics.Count);
             }
+        }
+        if(leftVertics.Count==0 || rightVertics.Count==0)
+        {
+            return;
         }
 
         for (int i = 0; i < mesh.triangles.Length; i += 3)
@@ -112,11 +128,17 @@ public class CutByPanel : MonoBehaviour
             {
                 if (positionTypes[0] == PositionType.Left)
                 {
-                    leftTriangles.AddRange(triangles);
+                    for (int j = 0; j < 3; j++)
+                    {
+                        leftTriangles.Add(triangles[j] - offset[triangles[j]]);
+                    }
                 }
                 else
                 {
-                    rightTriangles.AddRange(triangles);
+                    for (int j = 0; j < 3; j++)
+                    {
+                        rightTriangles.Add(triangles[j] - offset[triangles[j]]);
+                    }
                 }
                 continue;
             }
@@ -152,7 +174,7 @@ public class CutByPanel : MonoBehaviour
             List<int> thisSideTriangles = new List<int>();
             int otherSideVerticCount = 0;
             int thisSideVerticCount = 0;
-
+            //Dictionary<int, int> offset = new Dictionary<int, int>();
             if (otherSideType == PositionType.Left)
             {
                 otherSideVerticCount = leftVertics.Count;
@@ -164,18 +186,27 @@ public class CutByPanel : MonoBehaviour
                 thisSideVerticCount = leftVertics.Count;
             }
 
-            otherSideTriangles.Add(triangles[otherIndex]);
+            //if (otherSideType == PositionType.Left)
+            //{
+            //    offset = leftOffset;
+            //}
+            //else
+            //{
+            //    offset = rightOffset;
+            //}
+            Debug.Log(triangles[otherIndex]);
+            otherSideTriangles.Add(triangles[otherIndex] - offset[triangles[otherIndex]]);
             otherSideTriangles.Add(otherSideVerticCount - 2);
             otherSideTriangles.Add(otherSideVerticCount - 1);
 
-            thisSideTriangles.Add(triangles[(otherIndex + 1) % 3]);
+            thisSideTriangles.Add(triangles[(otherIndex + 1) % 3] - offset[triangles[(otherIndex + 1) % 3]]);
             thisSideTriangles.Add(thisSideVerticCount - 1);
             thisSideTriangles.Add(thisSideVerticCount - 2);
-            
 
-            thisSideTriangles.Add(triangles[(otherIndex + 2) % 3]);
+
+            thisSideTriangles.Add(triangles[(otherIndex + 2) % 3] - offset[triangles[(otherIndex + 2) % 3]]);
             thisSideTriangles.Add(thisSideVerticCount - 1);
-            thisSideTriangles.Add(triangles[(otherIndex + 1) % 3]);
+            thisSideTriangles.Add(triangles[(otherIndex + 1) % 3] - offset[triangles[(otherIndex + 1) % 3]]);
 
 
                 
