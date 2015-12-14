@@ -58,7 +58,7 @@ namespace UltimateFracturing
             fracturedComponent.DecomposeRadius = (meshfIn.sharedMesh.bounds.max - meshfIn.sharedMesh.bounds.min).magnitude;
             Random.seed = fracturedComponent.RandomSeed;
 
-//            Debug.Log("In: " + gameObjectIn.name + ": " + meshfIn.sharedMesh.subMeshCount + " submeshes, " + ": " + (meshfIn.sharedMesh.triangles.Length / 3) + " triangles, " + meshfIn.sharedMesh.vertexCount + " vertices, " + (meshfIn.sharedMesh.uv != null ? meshfIn.sharedMesh.uv.Length : 0) + " uv1, " + (meshfIn.sharedMesh.uv2 != null ? meshfIn.sharedMesh.uv2.Length : 0) + " uv2");
+//            Debug.Log("In: " + gameObjectIn.name + ": " + meshfIn.sharedMesh.subMeshCount + " submeshes, " + ": " + (meshfIn.sharedMesh.triangles.Length / 3) + " triangles, " + meshfIn.sharedMesh.vertexCount + " vertices, " + (meshfIn.sharedMesh.uv != null ? meshfIn.sharedMesh.uv.Length : 0) + " uaVertex[0], " + (meshfIn.sharedMesh.uaVertex[1] != null ? meshfIn.sharedMesh.uaVertex[1].Length : 0) + " uaVertex[1]");
 
             // Check if the input object already has been split, to get its split closing submesh
 
@@ -109,6 +109,231 @@ namespace UltimateFracturing
             }
 
             return true;
+        }
+
+        //private static bool Handler(float[] aSide, int[] aIndex,int[] aHashVertex,Vector3 [] aVertex,MeshData meshDataIn,
+        //    List<VertexData> plistVertexData, List<int> plistObjectIndices,
+        //    MeshFaceConnectivity pFaceConnectivity, MeshDataConnectivity pMeshConnectivity,
+        //    Dictionary<EdgeKeyByIndex, ClippedEdge> pdicClippedEdges,
+        //    Dictionary<int, int> pdicRemappedIndices)
+        //{
+
+        //    int aNewIndex[0] = -1;
+        //    int aNewIndex[1] = -1;
+        //    int aNewIndex[2] = -1;
+        //    int aNewIndex[3] = -1;
+        //    int nHashV4 = -1;
+        //    bool bEdge = false;
+
+        //    EdgeKeyByIndex clippedEdgeKey;
+
+        //    // aVertex[0] almost on the clipping plane
+
+        //    clippedEdgeKey = new EdgeKeyByIndex(aIndex[1], aIndex[2]);
+
+        //    if (pdicClippedEdges.ContainsKey(clippedEdgeKey))
+        //    {
+        //        nClippedCacheHits++;
+        //        bEdge = true;
+        //        aNewIndex[1] = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(aIndex[1]);
+        //        aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+        //    }
+        //    else
+        //    {
+        //        nClippedCacheMisses++;
+        //        if (pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
+        //    }
+
+        //    // Clip if not present in clipped edge list
+
+        //    EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[1], aHashVertex[2]);
+
+        //    if (dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
+        //    {
+        //        nHashV4 = dicClipVerticesHash[clippedEdgeKeyHash];
+        //    }
+        //    else
+        //    {
+        //        nHashV4 = nCurrentVertexHash++;
+        //        dicClipVerticesHash.Add(clippedEdgeKeyHash, nHashV4);
+        //    }
+
+        //    VertexData vd4 = new VertexData(nHashV4);
+
+        //    if (bEdge == false)
+        //    {
+        //        if (VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[1], aIndex[2], aVertex[1], aVertex[2], planeSplit, ref vd4) == false)
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    // Add geometry of one side
+
+        //    // Add vertex data for all data not present in remapped list
+
+        //    if (aNewIndex[0] == -1)
+        //    {
+        //        if (pdicRemappedIndices.ContainsKey(aIndex[0]))
+        //        {
+        //            aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
+        //        }
+        //    }
+        //    if (aNewIndex[0] == -1)
+        //    {
+        //        aNewIndex[0] = plistVertexData.Count;
+        //        plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+        //        pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
+        //    }
+
+        //    if (aNewIndex[1] == -1)
+        //    {
+        //        aNewIndex[1] = plistVertexData.Count;
+        //        plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+        //        pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
+        //    }
+
+        //    if (aNewIndex[3] == -1)
+        //    {
+        //        aNewIndex[3] = plistVertexData.Count;
+        //        plistVertexData.Add(vd4);
+        //    }
+
+        //    if (fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
+        //    {
+        //        pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
+        //    }
+
+        //    plistObjectIndices.Add(aNewIndex[0]);
+        //    plistObjectIndices.Add(aNewIndex[1]);
+        //    plistObjectIndices.Add(aNewIndex[3]);
+
+        //    Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
+
+        //    if (fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
+        //    {
+        //        pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], aVertex[1], aHashVertex[0], aHashVertex[1], aNewIndex[0], aNewIndex[1]);
+        //        pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], v4, aHashVertex[1], nHashV4, aNewIndex[1], aNewIndex[3]);
+        //        pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[0], nHashV4, aHashVertex[0], aNewIndex[3], aNewIndex[0]);
+        //    }
+
+        //    // Update cap edges and cache
+
+        //    if (plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, aHashVertex[0], plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[0]].v3Vertex);
+
+        //    if (bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[3]));
+
+        //    // Add geometry of other side
+
+        //    if (aSide[2] < 0.0f)
+        //    {
+        //        plistVertexData = listVertexDataNeg;
+        //        plistObjectIndices = listIndicesNeg;
+        //        pFaceConnectivity = faceConnectivityNeg;
+        //        pMeshConnectivity = meshConnectivityNeg;
+        //        pdicClippedEdges = dicClippedEdgesNeg;
+        //        pdicRemappedIndices = dicRemappedIndicesNeg;
+        //    }
+        //    else
+        //    {
+        //        plistVertexData = listVertexDataPos;
+        //        plistObjectIndices = listIndicesPos;
+        //        pFaceConnectivity = faceConnectivityPos;
+        //        pMeshConnectivity = meshConnectivityPos;
+        //        pdicClippedEdges = dicClippedEdgesPos;
+        //        pdicRemappedIndices = dicRemappedIndicesPos;
+        //    }
+
+        //    aNewIndex[0] = -1;
+        //    aNewIndex[1] = -1;
+        //    aNewIndex[2] = -1;
+        //    aNewIndex[3] = -1;
+        //    bEdge = false;
+
+        //    // Find edges in cache
+
+        //    if (pdicClippedEdges.ContainsKey(clippedEdgeKey))
+        //    {
+        //        nClippedCacheHits++;
+        //        bEdge = true;
+        //        aNewIndex[2] = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(aIndex[2]);
+        //        aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+        //    }
+        //    else
+        //    {
+        //        nClippedCacheMisses++;
+        //        if (pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
+        //    }
+
+        //    // Add vertex data for all data not present in remapped list
+
+        //    if (aNewIndex[0] == -1)
+        //    {
+        //        if (pdicRemappedIndices.ContainsKey(aIndex[0]))
+        //        {
+        //            aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
+        //        }
+        //    }
+        //    if (aNewIndex[0] == -1)
+        //    {
+        //        aNewIndex[0] = plistVertexData.Count;
+        //        plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+        //        pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
+        //    }
+
+        //    if (aNewIndex[2] == -1)
+        //    {
+        //        aNewIndex[2] = plistVertexData.Count;
+        //        plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+        //        pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
+        //    }
+
+        //    if (aNewIndex[3] == -1)
+        //    {
+        //        aNewIndex[3] = plistVertexData.Count;
+        //        plistVertexData.Add(vd4);
+        //    }
+
+        //    if (fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
+        //    {
+        //        pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
+        //    }
+
+        //    plistObjectIndices.Add(aNewIndex[0]);
+        //    plistObjectIndices.Add(aNewIndex[3]);
+        //    plistObjectIndices.Add(aNewIndex[2]);
+
+        //    if (fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
+        //    {
+        //        pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], v4, aHashVertex[0], nHashV4, aNewIndex[0], aNewIndex[3]);
+        //        pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[2], nHashV4, aHashVertex[2], aNewIndex[3], aNewIndex[2]);
+        //        pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], aVertex[0], aHashVertex[2], aHashVertex[0], aNewIndex[2], aNewIndex[0]);
+        //    }
+
+        //    // Update cap edges and cache
+
+        //    if (plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[0], nHashV4, plistVertexData[aNewIndex[0]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
+
+        //    if (bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[3]));
+
+        //}
+
+        private static int getRemapNewIndex(int index,MeshData meshDataIn,
+                              List<VertexData> plistVertexData,   
+                            Dictionary<int, int> pdicRemappedIndices)
+        {
+            int newIndex = -1;
+            if (pdicRemappedIndices.ContainsKey(index))
+            {
+                newIndex = pdicRemappedIndices[index];
+            }
+            if (newIndex == -1)
+            {
+                newIndex = plistVertexData.Count;
+                plistVertexData.Add(meshDataIn.aVertexData[index].Copy());
+                pdicRemappedIndices[index] = newIndex;
+            }
+            return newIndex;
         }
 
         private static bool SplitMeshUsingPlane(MeshData meshDataIn, FracturedObject fracturedComponent, SplitOptions splitOptions, Vector3 v3PlaneNormal, Vector3 v3PlaneRight, Vector3 v3PlanePoint, out List<MeshData> listMeshDatasPosOut, out List<MeshData> listMeshDatasNegOut, ProgressDelegate progress = null)
@@ -193,6 +418,7 @@ namespace UltimateFracturing
 
                 for(int i = 0; i < meshDataIn.aaIndices[nSubMesh].Length / 3; i++)
                 {
+                    #region data declaration and initialization
                     plistVertexData     = listVertexDataPos;
                     plistObjectIndices  = listIndicesPos;
                     pFaceConnectivity   = faceConnectivityPos;
@@ -200,60 +426,71 @@ namespace UltimateFracturing
                     pdicClippedEdges    = dicClippedEdgesPos;
                     pdicRemappedIndices = dicRemappedIndicesPos;
 
-                    int nIndex1 = meshDataIn.aaIndices[nSubMesh][i * 3 + 0];
-                    int nIndex2 = meshDataIn.aaIndices[nSubMesh][i * 3 + 1];
-                    int nIndex3 = meshDataIn.aaIndices[nSubMesh][i * 3 + 2];
+                    int[] aIndex = new int[3];
+                    aIndex[0] = meshDataIn.aaIndices[nSubMesh][i * 3 + 0];
+                    aIndex[1] = meshDataIn.aaIndices[nSubMesh][i * 3 + 1];
+                    aIndex[2] = meshDataIn.aaIndices[nSubMesh][i * 3 + 2];
 
-                    int nHashV1 = meshDataIn.aVertexData[nIndex1].nVertexHash;
-                    int nHashV2 = meshDataIn.aVertexData[nIndex2].nVertexHash;
-                    int nHashV3 = meshDataIn.aVertexData[nIndex3].nVertexHash;
+                    int[] aHashVertex = new int[3];
+                    aHashVertex[0] = meshDataIn.aVertexData[aIndex[0]].nVertexHash;
+                    aHashVertex[1] = meshDataIn.aVertexData[aIndex[1]].nVertexHash;
+                    aHashVertex[2] = meshDataIn.aVertexData[aIndex[2]].nVertexHash;
 
-                    Vector3 v1 = meshDataIn.aVertexData[nIndex1].v3Vertex;
-                    Vector3 v2 = meshDataIn.aVertexData[nIndex2].v3Vertex;
-                    Vector3 v3 = meshDataIn.aVertexData[nIndex3].v3Vertex;
+                    Vector3[] aVertex = new Vector3[3];
+                    aVertex[0] = meshDataIn.aVertexData[aIndex[0]].v3Vertex;
+                    aVertex[1] = meshDataIn.aVertexData[aIndex[1]].v3Vertex;
+                    aVertex[2] = meshDataIn.aVertexData[aIndex[2]].v3Vertex;
 
                     // Classify vertices depending on the side of the plane they lay on, then clip if necessary.
+                    float[] aSide = new float[3];
+                    aSide[0] = aVertex[0].x * planeSplit.normal.x + aVertex[0].y * planeSplit.normal.y + aVertex[0].z * planeSplit.normal.z + planeSplit.distance;
+                    aSide[1] = aVertex[1].x * planeSplit.normal.x + aVertex[1].y * planeSplit.normal.y + aVertex[1].z * planeSplit.normal.z + planeSplit.distance;
+                    aSide[2] = aVertex[2].x * planeSplit.normal.x + aVertex[2].y * planeSplit.normal.y + aVertex[2].z * planeSplit.normal.z + planeSplit.distance;
 
-                    float fSide1 = v1.x * planeSplit.normal.x + v1.y * planeSplit.normal.y + v1.z * planeSplit.normal.z + planeSplit.distance;
-                    float fSide2 = v2.x * planeSplit.normal.x + v2.y * planeSplit.normal.y + v2.z * planeSplit.normal.z + planeSplit.distance;
-                    float fSide3 = v3.x * planeSplit.normal.x + v3.y * planeSplit.normal.y + v3.z * planeSplit.normal.z + planeSplit.distance;
+                    bool[] aBAlomstInPanel = new bool[3];
+                    aBAlomstInPanel[0] = false;
+                    aBAlomstInPanel[1] = false;
+                    aBAlomstInPanel[2] = false;
 
                     bool  bForceSameSide  = false;
                     int   nAlmostInPlane  = 0;
-                    bool  bAlmostInPlane1 = false;
-                    bool  bAlmostInPlane2 = false;
-                    bool  bAlmostInPlane3 = false;
                     float fFurthest       = 0.0f;
+                     
+                    if(Mathf.Abs(aSide[0]) < UltimateFracturing.Parameters.EPSILONDISTANCEPLANE) { aBAlomstInPanel[0] = true; nAlmostInPlane++; }
+                    if(Mathf.Abs(aSide[1]) < UltimateFracturing.Parameters.EPSILONDISTANCEPLANE) { aBAlomstInPanel[1] = true; nAlmostInPlane++; }
+                    if(Mathf.Abs(aSide[2]) < UltimateFracturing.Parameters.EPSILONDISTANCEPLANE) { aBAlomstInPanel[2] = true; nAlmostInPlane++; }
 
-                    if(Mathf.Abs(fSide1) < UltimateFracturing.Parameters.EPSILONDISTANCEPLANE) { bAlmostInPlane1 = true; nAlmostInPlane++; }
-                    if(Mathf.Abs(fSide2) < UltimateFracturing.Parameters.EPSILONDISTANCEPLANE) { bAlmostInPlane2 = true; nAlmostInPlane++; }
-                    if(Mathf.Abs(fSide3) < UltimateFracturing.Parameters.EPSILONDISTANCEPLANE) { bAlmostInPlane3 = true; nAlmostInPlane++; }
+                    if(Mathf.Abs(aSide[0]) > Mathf.Abs(fFurthest)) fFurthest = aSide[0];
+                    if(Mathf.Abs(aSide[1]) > Mathf.Abs(fFurthest)) fFurthest = aSide[1];
+                    if(Mathf.Abs(aSide[2]) > Mathf.Abs(fFurthest)) fFurthest = aSide[2];
+                    #endregion
 
-                    if(Mathf.Abs(fSide1) > Mathf.Abs(fFurthest)) fFurthest = fSide1;
-                    if(Mathf.Abs(fSide2) > Mathf.Abs(fFurthest)) fFurthest = fSide2;
-                    if(Mathf.Abs(fSide3) > Mathf.Abs(fFurthest)) fFurthest = fSide3;
-
-                    if(nAlmostInPlane == 1)
+                    #region Look if the other two vertices are on the same side. If so, we'll skip the clipping too.
+                    if (nAlmostInPlane == 1)
                     {
-                        // Look if the other two vertices are on the same side. If so, we'll skip the clipping too.
-                        if(bAlmostInPlane1 && (fSide2 * fSide3 > 0.0f)) bForceSameSide = true;
-                        if(bAlmostInPlane2 && (fSide1 * fSide3 > 0.0f)) bForceSameSide = true;
-                        if(bAlmostInPlane3 && (fSide1 * fSide2 > 0.0f)) bForceSameSide = true;
+                        if(aBAlomstInPanel[0] && (aSide[1] * aSide[2] > 0.0f)) bForceSameSide = true;
+                        if(aBAlomstInPanel[1] && (aSide[0] * aSide[2] > 0.0f)) bForceSameSide = true;
+                        if(aBAlomstInPanel[2] && (aSide[0] * aSide[1] > 0.0f)) bForceSameSide = true;
                     }
+                    #endregion
+                    #region Look if there are more than 1 vertices almonst in plane
                     else if(nAlmostInPlane > 1)
                     {
                         bForceSameSide = true;
-
+                        #region If 3 vertices are all in plane
                         if(nAlmostInPlane == 3)
                         {
                             // Coplanar
                             continue;
                         }
+                        #endregion
                     }
+                    #endregion
 
-                    if((fSide1 * fSide2 > 0.0f && fSide2 * fSide3 > 0.0f) || bForceSameSide)
+                    #region All on the same side, no clipping needed
+                    if ((aSide[0] * aSide[1] > 0.0f && aSide[1] * aSide[2] > 0.0f) || bForceSameSide)
                     {
-                        // All on the same side, no clipping needed
+                        
 
                         if(fFurthest < 0.0f)
                         {
@@ -265,300 +502,281 @@ namespace UltimateFracturing
                             pdicRemappedIndices = dicRemappedIndicesNeg;
                         }
 
-                        int nNewIndex1 = -1;
-                        int nNewIndex2 = -1;
-                        int nNewIndex3 = -1;
 
-                        // Find vertices in remapped indices list and add vertex data if not present
+                        #region Find vertices in remapped indices list and add vertex data if not present
 
-                        if(pdicRemappedIndices.ContainsKey(nIndex1))
-                        {
-                            nNewIndex1 = pdicRemappedIndices[nIndex1];
-                        }
-                        if(nNewIndex1 == -1)
-                        {
-                            nNewIndex1 = plistVertexData.Count;
-                            plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                            pdicRemappedIndices[nIndex1] = nNewIndex1;
-                        }
+                        int[] aNewIndex = new int[3];
+                        aNewIndex[0] = getRemapNewIndex(aIndex[0], meshDataIn, plistVertexData, pdicRemappedIndices);
+                        aNewIndex[1] = getRemapNewIndex(aIndex[1], meshDataIn, plistVertexData, pdicRemappedIndices);
+                        aNewIndex[2] = getRemapNewIndex(aIndex[2], meshDataIn, plistVertexData, pdicRemappedIndices);
 
-                        if(pdicRemappedIndices.ContainsKey(nIndex2))
-                        {
-                            nNewIndex2 = pdicRemappedIndices[nIndex2];
-                        }
-                        if(nNewIndex2 == -1)
-                        {
-                            nNewIndex2 = plistVertexData.Count;
-                            plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                            pdicRemappedIndices[nIndex2] = nNewIndex2;
-                        }
+                        #endregion
 
-                        if(pdicRemappedIndices.ContainsKey(nIndex3))
-                        {
-                            nNewIndex3 = pdicRemappedIndices[nIndex3];
-                        }
-                        if(nNewIndex3 == -1)
-                        {
-                            nNewIndex3 = plistVertexData.Count;
-                            plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                            pdicRemappedIndices[nIndex3] = nNewIndex3;
-                        }
+                        #region Add triangle indices
 
-                        // Add triangle indices
-
-                        if(fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
+                        if (fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
                         {
                             pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                         }
 
-                        plistObjectIndices.Add(nNewIndex1);
-                        plistObjectIndices.Add(nNewIndex2);
-                        plistObjectIndices.Add(nNewIndex3);
+                        plistObjectIndices.Add(aNewIndex[0]);
+                        plistObjectIndices.Add(aNewIndex[1]);
+                        plistObjectIndices.Add(aNewIndex[2]);
 
                         if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                         {
-                            pFaceConnectivity.AddEdge(nSubMesh, v1, v2, nHashV1, nHashV2, nNewIndex1, nNewIndex2);
-                            pFaceConnectivity.AddEdge(nSubMesh, v2, v3, nHashV2, nHashV3, nNewIndex2, nNewIndex3);
-                            pFaceConnectivity.AddEdge(nSubMesh, v3, v1, nHashV3, nHashV1, nNewIndex3, nNewIndex1);
+                            pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], aVertex[1], aHashVertex[0], aHashVertex[1], aNewIndex[0], aNewIndex[1]);
+                            pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], aVertex[2], aHashVertex[1], aHashVertex[2], aNewIndex[1], aNewIndex[2]);
+                            pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], aVertex[0], aHashVertex[2], aHashVertex[0], aNewIndex[2], aNewIndex[0]);
                         }
+                        #endregion
 
-                        // Add cap edges only if an edge is lying on the plane
+                        #region Add cap edges only if an edge is lying on the plane
 
-                        if(nAlmostInPlane == 2)
+                        if (nAlmostInPlane == 2)
                         {
                             if(fFurthest > 0.0f)
                             {
-                                if(bAlmostInPlane1 && bAlmostInPlane2 && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV1, nHashV2, v1, v2);
-                                if(bAlmostInPlane2 && bAlmostInPlane3 && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV2, nHashV3, v2, v3);
-                                if(bAlmostInPlane3 && bAlmostInPlane1 && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV3, nHashV1, v3, v1);
+                                if(aBAlomstInPanel[0] && aBAlomstInPanel[1] && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[0], aHashVertex[1], aVertex[0], aVertex[1]);
+                                if(aBAlomstInPanel[1] && aBAlomstInPanel[2] && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[1], aHashVertex[2], aVertex[1], aVertex[2]);
+                                if(aBAlomstInPanel[2] && aBAlomstInPanel[0] && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[2], aHashVertex[0], aVertex[2], aVertex[0]);
                             }
                             else
                             {
-                                if(bAlmostInPlane1 && bAlmostInPlane2 && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV2, nHashV1, v2, v1);
-                                if(bAlmostInPlane2 && bAlmostInPlane3 && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV3, nHashV2, v3, v2);
-                                if(bAlmostInPlane3 && bAlmostInPlane1 && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV1, nHashV3, v1, v3);
+                                if(aBAlomstInPanel[0] && aBAlomstInPanel[1] && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[1], aHashVertex[0], aVertex[1], aVertex[0]);
+                                if(aBAlomstInPanel[1] && aBAlomstInPanel[2] && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[2], aHashVertex[1], aVertex[2], aVertex[1]);
+                                if(aBAlomstInPanel[2] && aBAlomstInPanel[0] && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[0], aHashVertex[2], aVertex[0], aVertex[2]);
                             }
                         }
+                        #endregion
+
                     }
+                    #endregion
+                    #region Special treatment clipping for one vertex laying on the clipping plane and the other 2 on different sides
                     else if(nAlmostInPlane == 1)
                     {
-                        // Special treatment clipping for one vertex laying on the clipping plane and the other 2 on different sides
-
-                        int  nNewIndex1 = -1;
-                        int  nNewIndex2 = -1;
-                        int  nNewIndex3 = -1;
-                        int  nNewIndex4 = -1;
+                        int [] aNewIndex = new int[4];
+                        aNewIndex[0] = -1;
+                        aNewIndex[1] = -1;
+                        aNewIndex[2] = -1;
+                        aNewIndex[3] = -1;
                         int  nHashV4    = -1;
                         bool bEdge      = false;
 
                         EdgeKeyByIndex clippedEdgeKey;
-
-                        if(bAlmostInPlane1)
+                        EdgeKeyByHash clippedEdgeKeyHash;
+                        #region aVertex[0] almost on the clipping plane
+                        if (aBAlomstInPanel[0])
                         {
-                            // v1 almost on the clipping plane
 
-                            if(fSide2 < 0.0f)
+                            if (aSide[1] < 0.0f)
                             {
-                                plistVertexData     = listVertexDataNeg;
-                                plistObjectIndices  = listIndicesNeg;
-                                pFaceConnectivity   = faceConnectivityNeg;
-                                pMeshConnectivity   = meshConnectivityNeg;
-                                pdicClippedEdges    = dicClippedEdgesNeg;
+                                plistVertexData = listVertexDataNeg;
+                                plistObjectIndices = listIndicesNeg;
+                                pFaceConnectivity = faceConnectivityNeg;
+                                pMeshConnectivity = meshConnectivityNeg;
+                                pdicClippedEdges = dicClippedEdgesNeg;
                                 pdicRemappedIndices = dicRemappedIndicesNeg;
                             }
 
-                            clippedEdgeKey = new EdgeKeyByIndex(nIndex2, nIndex3);
 
-                            if(pdicClippedEdges.ContainsKey(clippedEdgeKey))
+                            {
+                                clippedEdgeKey = new EdgeKeyByIndex(aIndex[1], aIndex[2]);
+                                if (pdicClippedEdges.ContainsKey(clippedEdgeKey))
+                                {
+                                    nClippedCacheHits++;
+                                    bEdge = true;
+                                    aNewIndex[1] = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(aIndex[1]);
+                                    aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+                                }
+                                else
+                                {
+                                    nClippedCacheMisses++;
+                                    if (pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
+                                }
+
+
+                            }
+
+                            // Clip if not present in clipped edge list
+
+                            clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[1], aHashVertex[2]);
+
+                            if (dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
+                            {
+                                nHashV4 = dicClipVerticesHash[clippedEdgeKeyHash];
+                            }
+                            else
+                            {
+                                nHashV4 = nCurrentVertexHash++;
+                                dicClipVerticesHash.Add(clippedEdgeKeyHash, nHashV4);
+                            }
+
+                            VertexData vd4 = new VertexData(nHashV4);
+
+                            if (bEdge == false)
+                            {
+                                if (VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[1], aIndex[2], aVertex[1], aVertex[2], planeSplit, ref vd4) == false)
+                                {
+                                    return false;
+                                }
+                            }
+
+                            // Add geometry of one side
+
+                            // Add vertex data for all data not present in remapped list
+
+                            if (aNewIndex[0] == -1)
+                            {
+                                if (pdicRemappedIndices.ContainsKey(aIndex[0]))
+                                {
+                                    aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
+                                }
+                            }
+                            if (aNewIndex[0] == -1)
+                            {
+                                aNewIndex[0] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
+                            }
+
+                            if (aNewIndex[1] == -1)
+                            {
+                                aNewIndex[1] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
+                            }
+
+                            if (aNewIndex[3] == -1)
+                            {
+                                aNewIndex[3] = plistVertexData.Count;
+                                plistVertexData.Add(vd4);
+                            }
+
+                            if (fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
+                            {
+                                pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
+                            }
+
+                            plistObjectIndices.Add(aNewIndex[0]);
+                            plistObjectIndices.Add(aNewIndex[1]);
+                            plistObjectIndices.Add(aNewIndex[3]);
+
+                            Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
+
+                            if (fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
+                            {
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], aVertex[1], aHashVertex[0], aHashVertex[1], aNewIndex[0], aNewIndex[1]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], v4, aHashVertex[1], nHashV4, aNewIndex[1], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[0], nHashV4, aHashVertex[0], aNewIndex[3], aNewIndex[0]);
+                            }
+
+                            // Update cap edges and cache
+
+                            if (plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, aHashVertex[0], plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[0]].v3Vertex);
+
+                            if (bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[3]));
+
+                            // Add geometry of other side
+
+                            if (aSide[2] < 0.0f)
+                            {
+                                plistVertexData = listVertexDataNeg;
+                                plistObjectIndices = listIndicesNeg;
+                                pFaceConnectivity = faceConnectivityNeg;
+                                pMeshConnectivity = meshConnectivityNeg;
+                                pdicClippedEdges = dicClippedEdgesNeg;
+                                pdicRemappedIndices = dicRemappedIndicesNeg;
+                            }
+                            else
+                            {
+                                plistVertexData = listVertexDataPos;
+                                plistObjectIndices = listIndicesPos;
+                                pFaceConnectivity = faceConnectivityPos;
+                                pMeshConnectivity = meshConnectivityPos;
+                                pdicClippedEdges = dicClippedEdgesPos;
+                                pdicRemappedIndices = dicRemappedIndicesPos;
+                            }
+
+                            aNewIndex[0] = -1;
+                            aNewIndex[1] = -1;
+                            aNewIndex[2] = -1;
+                            aNewIndex[3] = -1;
+                            bEdge = false;
+
+                            // Find edges in cache
+
+                            if (pdicClippedEdges.ContainsKey(clippedEdgeKey))
                             {
                                 nClippedCacheHits++;
                                 bEdge = true;
-                                nNewIndex2 = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(nIndex2);
-                                nNewIndex4 = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+                                aNewIndex[2] = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(aIndex[2]);
+                                aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex2)) nNewIndex2 = pdicRemappedIndices[nIndex2];
-                            }
-
-                            // Clip if not present in clipped edge list
-
-                            EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(nHashV2, nHashV3);
-
-                            if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
-                            {
-                                nHashV4 = dicClipVerticesHash[clippedEdgeKeyHash];
-                            }
-                            else
-                            {
-                                nHashV4 = nCurrentVertexHash++;
-                                dicClipVerticesHash.Add(clippedEdgeKeyHash, nHashV4);
-                            }
-
-                            VertexData vd4 = new VertexData(nHashV4);
-
-                            if(bEdge == false)
-                            {
-                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex2, nIndex3, v2, v3, planeSplit, ref vd4) == false)
-                                {
-                                    return false;
-                                }
-                            }
-
-                            // Add geometry of one side
-
-                            // Add vertex data for all data not present in remapped list
-
-                            if(nNewIndex1 == -1)
-                            {
-                                if(pdicRemappedIndices.ContainsKey(nIndex1))
-                                {
-                                    nNewIndex1 = pdicRemappedIndices[nIndex1];
-                                }
-                            }
-                            if(nNewIndex1 == -1)
-                            {
-                                nNewIndex1 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                pdicRemappedIndices[nIndex1] = nNewIndex1;
-                            }
-
-                            if(nNewIndex2 == -1)
-                            {
-                                nNewIndex2 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                pdicRemappedIndices[nIndex2] = nNewIndex2;
-                            }
-
-                            if(nNewIndex4 == -1)
-                            {
-                                nNewIndex4 = plistVertexData.Count;
-                                plistVertexData.Add(vd4);
-                            }
-
-                            if(fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
-                            {
-                                pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
-                            }
-
-                            plistObjectIndices.Add(nNewIndex1);
-                            plistObjectIndices.Add(nNewIndex2);
-                            plistObjectIndices.Add(nNewIndex4);
-
-                            Vector3 v4 = plistVertexData[nNewIndex4].v3Vertex;
-
-                            if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
-                            {
-                                pFaceConnectivity.AddEdge(nSubMesh, v1, v2, nHashV1, nHashV2, nNewIndex1, nNewIndex2);
-                                pFaceConnectivity.AddEdge(nSubMesh, v2, v4, nHashV2, nHashV4, nNewIndex2, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v1, nHashV4, nHashV1, nNewIndex4, nNewIndex1);
-                            }
-
-                            // Update cap edges and cache
-
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV1, plistVertexData[nNewIndex4].v3Vertex, plistVertexData[nNewIndex1].v3Vertex);
-
-                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(nIndex2, nIndex3, nNewIndex2, nNewIndex3, nNewIndex4));
-
-                            // Add geometry of other side
-
-                            if(fSide3 < 0.0f)
-                            {
-                                plistVertexData     = listVertexDataNeg;
-                                plistObjectIndices  = listIndicesNeg;
-                                pFaceConnectivity   = faceConnectivityNeg;
-                                pMeshConnectivity   = meshConnectivityNeg;
-                                pdicClippedEdges    = dicClippedEdgesNeg;
-                                pdicRemappedIndices = dicRemappedIndicesNeg;
-                            }
-                            else
-                            {
-                                plistVertexData     = listVertexDataPos;
-                                plistObjectIndices  = listIndicesPos;
-                                pFaceConnectivity   = faceConnectivityPos;
-                                pMeshConnectivity   = meshConnectivityPos;
-                                pdicClippedEdges    = dicClippedEdgesPos;
-                                pdicRemappedIndices = dicRemappedIndicesPos;
-                            }
-
-                            nNewIndex1 = -1;
-                            nNewIndex2 = -1;
-                            nNewIndex3 = -1;
-                            nNewIndex4 = -1;
-                            bEdge      = false;
-
-                            // Find edges in cache
-
-                            if(pdicClippedEdges.ContainsKey(clippedEdgeKey))
-                            {
-                                nClippedCacheHits++;
-                                bEdge      = true;
-                                nNewIndex3 = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(nIndex3);
-                                nNewIndex4 = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
-                            }
-                            else
-                            {
-                                nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex3)) nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                if (pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                             }
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex1 == -1)
+                            if (aNewIndex[0] == -1)
                             {
-                                if(pdicRemappedIndices.ContainsKey(nIndex1))
+                                if (pdicRemappedIndices.ContainsKey(aIndex[0]))
                                 {
-                                    nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                    aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                                 }
                             }
-                            if(nNewIndex1 == -1)
+                            if (aNewIndex[0] == -1)
                             {
-                                nNewIndex1 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                pdicRemappedIndices[nIndex1] = nNewIndex1;
+                                aNewIndex[0] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
                             }
 
-                            if(nNewIndex3 == -1)
+                            if (aNewIndex[2] == -1)
                             {
-                                nNewIndex3 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                aNewIndex[2] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if (aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
-                            if(fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
+                            if (fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
                             {
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex1);
-                            plistObjectIndices.Add(nNewIndex4);
-                            plistObjectIndices.Add(nNewIndex3);
+                            plistObjectIndices.Add(aNewIndex[0]);
+                            plistObjectIndices.Add(aNewIndex[3]);
+                            plistObjectIndices.Add(aNewIndex[2]);
 
-                            if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
+                            if (fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v1, v4, nHashV1, nHashV4, nNewIndex1, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v3, nHashV4, nHashV3, nNewIndex4, nNewIndex3);
-                                pFaceConnectivity.AddEdge(nSubMesh, v3, v1, nHashV3, nHashV1, nNewIndex3, nNewIndex1);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], v4, aHashVertex[0], nHashV4, aNewIndex[0], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[2], nHashV4, aHashVertex[2], aNewIndex[3], aNewIndex[2]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], aVertex[0], aHashVertex[2], aHashVertex[0], aNewIndex[2], aNewIndex[0]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV1, nHashV4, plistVertexData[nNewIndex1].v3Vertex, plistVertexData[nNewIndex4].v3Vertex);
+                            if (plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[0], nHashV4, plistVertexData[aNewIndex[0]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
 
-                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(nIndex2, nIndex3, nNewIndex2, nNewIndex3, nNewIndex4));
+                            if (bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[3]));
                         }
-                        else if(bAlmostInPlane2)
+                        #endregion
+                        #region aVertex[1] almost on the clipping plane
+                        else if(aBAlomstInPanel[1])
                         {
-                            // v2 almost on the clipping plane
+                            // aVertex[1] almost on the clipping plane
 
-                            if(fSide3 < 0.0f)
+                            if(aSide[2] < 0.0f)
                             {
                                 plistVertexData     = listVertexDataNeg;
                                 plistObjectIndices  = listIndicesNeg;
@@ -568,24 +786,24 @@ namespace UltimateFracturing
                                 pdicRemappedIndices = dicRemappedIndicesNeg;
                             }
 
-                            clippedEdgeKey = new EdgeKeyByIndex(nIndex3, nIndex1);
+                            clippedEdgeKey = new EdgeKeyByIndex(aIndex[2], aIndex[0]);
 
                             if(pdicClippedEdges.ContainsKey(clippedEdgeKey))
                             {
                                 nClippedCacheHits++;
                                 bEdge      = true;
-                                nNewIndex3 = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(nIndex3);
-                                nNewIndex4 = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+                                aNewIndex[2] = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(aIndex[2]);
+                                aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex3)) nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                             }
 
                             // Clip if not present in clipped edge list
 
-                            EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(nHashV3, nHashV1);
+                            clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[2], aHashVertex[0]);
 
                             if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                             {
@@ -601,7 +819,7 @@ namespace UltimateFracturing
 
                             if(bEdge == false)
                             {
-                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex3, nIndex1, v3, v1, planeSplit, ref vd4) == false)
+                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[2], aIndex[0], aVertex[2], aVertex[0], planeSplit, ref vd4) == false)
                                 {
                                     return false;
                                 }
@@ -611,30 +829,30 @@ namespace UltimateFracturing
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex2 == -1)
+                            if(aNewIndex[1] == -1)
                             {
-                                if(pdicRemappedIndices.ContainsKey(nIndex2))
+                                if(pdicRemappedIndices.ContainsKey(aIndex[1]))
                                 {
-                                    nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                    aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                                 }
                             }
-                            if(nNewIndex2 == -1)
+                            if(aNewIndex[1] == -1)
                             {
-                                nNewIndex2 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                pdicRemappedIndices[nIndex2] = nNewIndex2;
+                                aNewIndex[1] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
                             }
 
-                            if(nNewIndex3 == -1)
+                            if(aNewIndex[2] == -1)
                             {
-                                nNewIndex3 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                aNewIndex[2] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if(aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
@@ -643,28 +861,28 @@ namespace UltimateFracturing
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex2);
-                            plistObjectIndices.Add(nNewIndex3);
-                            plistObjectIndices.Add(nNewIndex4);
+                            plistObjectIndices.Add(aNewIndex[1]);
+                            plistObjectIndices.Add(aNewIndex[2]);
+                            plistObjectIndices.Add(aNewIndex[3]);
 
-                            Vector3 v4 = plistVertexData[nNewIndex4].v3Vertex;
+                            Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
 
                             if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v2, v3, nHashV2, nHashV3, nNewIndex2, nNewIndex3);
-                                pFaceConnectivity.AddEdge(nSubMesh, v3, v4, nHashV3, nHashV4, nNewIndex3, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v2, nHashV4, nHashV2, nNewIndex4, nNewIndex2);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], aVertex[2], aHashVertex[1], aHashVertex[2], aNewIndex[1], aNewIndex[2]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], v4, aHashVertex[2], nHashV4, aNewIndex[2], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[1], nHashV4, aHashVertex[1], aNewIndex[3], aNewIndex[1]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV2, plistVertexData[nNewIndex4].v3Vertex, plistVertexData[nNewIndex2].v3Vertex);
+                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, aHashVertex[1], plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[1]].v3Vertex);
 
-                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(nIndex3, nIndex1, nNewIndex3, nNewIndex1, nNewIndex4));
+                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[2], aIndex[0], aNewIndex[2], aNewIndex[0], aNewIndex[3]));
 
                             // Add geometry of other side
 
-                            if(fSide1 < 0.0f)
+                            if(aSide[0] < 0.0f)
                             {
                                 plistVertexData     = listVertexDataNeg;
                                 plistObjectIndices  = listIndicesNeg;
@@ -683,9 +901,9 @@ namespace UltimateFracturing
                                 pdicRemappedIndices = dicRemappedIndicesPos;
                             }
 
-                            nNewIndex1 = -1;
-                            nNewIndex2 = -1;
-                            nNewIndex4 = -1;
+                            aNewIndex[0] = -1;
+                            aNewIndex[1] = -1;
+                            aNewIndex[3] = -1;
                             bEdge      = false;
 
                             // Find edges in cache
@@ -694,41 +912,41 @@ namespace UltimateFracturing
                             {
                                 nClippedCacheHits++;
                                 bEdge      = true;
-                                nNewIndex1 = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(nIndex1);
-                                nNewIndex4 = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+                                aNewIndex[0] = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(aIndex[0]);
+                                aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex1)) nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[0])) aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                             }
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex1 == -1)
+                            if(aNewIndex[0] == -1)
                             {
-                                nNewIndex1 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                pdicRemappedIndices[nIndex1] = nNewIndex1;
+                                aNewIndex[0] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
                             }
 
-                            if(nNewIndex2 == -1)
+                            if(aNewIndex[1] == -1)
                             {
-                                if(pdicRemappedIndices.ContainsKey(nIndex2))
+                                if(pdicRemappedIndices.ContainsKey(aIndex[1]))
                                 {
-                                    nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                    aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                                 }
                             }
-                            if(nNewIndex2 == -1)
+                            if(aNewIndex[1] == -1)
                             {
-                                nNewIndex2 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                pdicRemappedIndices[nIndex2] = nNewIndex2;
+                                aNewIndex[1] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if(aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
@@ -737,28 +955,30 @@ namespace UltimateFracturing
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex2);
-                            plistObjectIndices.Add(nNewIndex4);
-                            plistObjectIndices.Add(nNewIndex1);
+                            plistObjectIndices.Add(aNewIndex[1]);
+                            plistObjectIndices.Add(aNewIndex[3]);
+                            plistObjectIndices.Add(aNewIndex[0]);
 
                             if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v2, v4, nHashV2, nHashV4, nNewIndex2, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v1, nHashV4, nHashV1, nNewIndex4, nNewIndex1);
-                                pFaceConnectivity.AddEdge(nSubMesh, v1, v2, nHashV1, nHashV2, nNewIndex1, nNewIndex2);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], v4, aHashVertex[1], nHashV4, aNewIndex[1], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[0], nHashV4, aHashVertex[0], aNewIndex[3], aNewIndex[0]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], aVertex[1], aHashVertex[0], aHashVertex[1], aNewIndex[0], aNewIndex[1]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV2, nHashV4, plistVertexData[nNewIndex2].v3Vertex, plistVertexData[nNewIndex4].v3Vertex);
+                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[1], nHashV4, plistVertexData[aNewIndex[1]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
 
-                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(nIndex3, nIndex1, nNewIndex3, nNewIndex1, nNewIndex4));
+                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[2], aIndex[0], aNewIndex[2], aNewIndex[0], aNewIndex[3]));
                         }
-                        else if(bAlmostInPlane3)
+                        #endregion
+                        #region aVertex[2] almost on the clipping plane
+                        else if(aBAlomstInPanel[2])
                         {
                             // v3 almost on the clipping plane
 
-                            if(fSide1 < 0.0f)
+                            if(aSide[0] < 0.0f)
                             {
                                 plistVertexData     = listVertexDataNeg;
                                 plistObjectIndices  = listIndicesNeg;
@@ -768,24 +988,24 @@ namespace UltimateFracturing
                                 pdicRemappedIndices = dicRemappedIndicesNeg;
                             }
 
-                            clippedEdgeKey = new EdgeKeyByIndex(nIndex1, nIndex2);
+                            clippedEdgeKey = new EdgeKeyByIndex(aIndex[0], aIndex[1]);
 
                             if(pdicClippedEdges.ContainsKey(clippedEdgeKey))
                             {
                                 nClippedCacheHits++;
                                 bEdge      = true;
-                                nNewIndex1 = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(nIndex1);
-                                nNewIndex4 = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+                                aNewIndex[0] = pdicClippedEdges[clippedEdgeKey].GetFirstIndex(aIndex[0]);
+                                aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex1)) nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[0])) aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                             }
 
                             // Clip if not present in clipped edge list
 
-                            EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(nHashV1, nHashV2);
+                            clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[0], aHashVertex[1]);
 
                             if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                             {
@@ -801,7 +1021,7 @@ namespace UltimateFracturing
 
                             if(bEdge == false)
                             {
-                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex1, nIndex2, v1, v2, planeSplit, ref vd4) == false)
+                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[0], aIndex[1], aVertex[0], aVertex[1], planeSplit, ref vd4) == false)
                                 {
                                     return false;
                                 }
@@ -811,30 +1031,30 @@ namespace UltimateFracturing
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex1 == -1)
+                            if(aNewIndex[0] == -1)
                             {
-                                nNewIndex1 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                pdicRemappedIndices[nIndex1] = nNewIndex1;
+                                aNewIndex[0] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
                             }
 
-                            if(nNewIndex3 == -1)
+                            if(aNewIndex[2] == -1)
                             {
-                                if(pdicRemappedIndices.ContainsKey(nIndex3))
+                                if(pdicRemappedIndices.ContainsKey(aIndex[2]))
                                 {
-                                    nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                    aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                                 }
                             }
-                            if(nNewIndex3 == -1)
+                            if(aNewIndex[2] == -1)
                             {
-                                nNewIndex3 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                aNewIndex[2] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if(aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
@@ -843,28 +1063,28 @@ namespace UltimateFracturing
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex1);
-                            plistObjectIndices.Add(nNewIndex4);
-                            plistObjectIndices.Add(nNewIndex3);
+                            plistObjectIndices.Add(aNewIndex[0]);
+                            plistObjectIndices.Add(aNewIndex[3]);
+                            plistObjectIndices.Add(aNewIndex[2]);
 
-                            Vector3 v4 = plistVertexData[nNewIndex4].v3Vertex;
+                            Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
 
                             if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v1, v4, nHashV1, nHashV4, nNewIndex1, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v3, nHashV4, nHashV3, nNewIndex4, nNewIndex3);
-                                pFaceConnectivity.AddEdge(nSubMesh, v3, v1, nHashV3, nHashV1, nNewIndex3, nNewIndex1);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], v4, aHashVertex[0], nHashV4, aNewIndex[0], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[2], nHashV4, aHashVertex[2], aNewIndex[3], aNewIndex[2]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], aVertex[0], aHashVertex[2], aHashVertex[0], aNewIndex[2], aNewIndex[0]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV3, plistVertexData[nNewIndex4].v3Vertex, plistVertexData[nNewIndex3].v3Vertex);
+                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, aHashVertex[2], plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[2]].v3Vertex);
 
-                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(nIndex1, nIndex2, nNewIndex1, nNewIndex2, nNewIndex4));
+                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[0], aIndex[1], aNewIndex[0], aNewIndex[1], aNewIndex[3]));
 
                             // Add geometry of other side
 
-                            if(fSide2 < 0.0f)
+                            if(aSide[1] < 0.0f)
                             {
                                 plistVertexData     = listVertexDataNeg;
                                 plistObjectIndices  = listIndicesNeg;
@@ -883,9 +1103,9 @@ namespace UltimateFracturing
                                 pdicRemappedIndices = dicRemappedIndicesPos;
                             }
 
-                            nNewIndex2 = -1;
-                            nNewIndex3 = -1;
-                            nNewIndex4 = -1;
+                            aNewIndex[1] = -1;
+                            aNewIndex[2] = -1;
+                            aNewIndex[3] = -1;
                             bEdge      = false;
 
                             // Find edges in cache
@@ -894,41 +1114,41 @@ namespace UltimateFracturing
                             {
                                 nClippedCacheHits++;
                                 bEdge      = true;
-                                nNewIndex2 = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(nIndex2);
-                                nNewIndex4 = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
+                                aNewIndex[1] = pdicClippedEdges[clippedEdgeKey].GetSecondIndex(aIndex[1]);
+                                aNewIndex[3] = pdicClippedEdges[clippedEdgeKey].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex2)) nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                             }
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex2 == -1)
+                            if(aNewIndex[1] == -1)
                             {
-                                nNewIndex2 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                pdicRemappedIndices[nIndex2] = nNewIndex2;
+                                aNewIndex[1] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
                             }
 
-                            if(nNewIndex3 == -1)
+                            if(aNewIndex[2] == -1)
                             {
-                                if(pdicRemappedIndices.ContainsKey(nIndex3))
+                                if(pdicRemappedIndices.ContainsKey(aIndex[2]))
                                 {
-                                    nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                    aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                                 }
                             }
-                            if(nNewIndex3 == -1)
+                            if(aNewIndex[2] == -1)
                             {
-                                nNewIndex3 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                aNewIndex[2] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if(aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
@@ -937,35 +1157,39 @@ namespace UltimateFracturing
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex2);
-                            plistObjectIndices.Add(nNewIndex3);
-                            plistObjectIndices.Add(nNewIndex4);
+                            plistObjectIndices.Add(aNewIndex[1]);
+                            plistObjectIndices.Add(aNewIndex[2]);
+                            plistObjectIndices.Add(aNewIndex[3]);
 
                             if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v2, v3, nHashV2, nHashV3, nNewIndex2, nNewIndex3);
-                                pFaceConnectivity.AddEdge(nSubMesh, v3, v4, nHashV3, nHashV4, nNewIndex3, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v2, nHashV4, nHashV2, nNewIndex4, nNewIndex2);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], aVertex[2], aHashVertex[1], aHashVertex[2], aNewIndex[1], aNewIndex[2]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], v4, aHashVertex[2], nHashV4, aNewIndex[2], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[1], nHashV4, aHashVertex[1], aNewIndex[3], aNewIndex[1]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV3, nHashV4, plistVertexData[nNewIndex3].v3Vertex, plistVertexData[nNewIndex4].v3Vertex);
+                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, aHashVertex[2], nHashV4, plistVertexData[aNewIndex[2]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
 
-                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(nIndex1, nIndex2, nNewIndex1, nNewIndex2, nNewIndex4));
+                            if(bEdge == false) pdicClippedEdges.Add(clippedEdgeKey, new ClippedEdge(aIndex[0], aIndex[1], aNewIndex[0], aNewIndex[1], aNewIndex[3]));
                         }
+                        #endregion
                     }
+                    #endregion
+                    #region one vertex laying on one side of the clipping plane an the other 2 on the other side
                     else
                     {
-                        if(fSide1 * fSide2 < 0.0f)
+                        EdgeKeyByHash clippedEdgeKeyHash;
+                        #region aVertex[0] and aVertex[1] on different sides
+                        if (aSide[0] * aSide[1] < 0.0f)
                         {
-                            // v1 and v2 on different sides
-
-                            if(fSide2 * fSide3 < 0.0f)
+                            #region ... and aVertex[2] on same side as aVertex[0]
+                            if (aSide[1] * aSide[2] < 0.0f)
                             {
-                                // ... and v3 on same side as v1
+                                
 
-                                if(fSide1 < 0.0f)
+                                if(aSide[0] < 0.0f)
                                 {
                                     plistVertexData     = listVertexDataNeg;
                                     plistObjectIndices  = listIndicesNeg;
@@ -975,18 +1199,19 @@ namespace UltimateFracturing
                                     pdicRemappedIndices = dicRemappedIndicesNeg;
                                 }
 
-                                int  nNewIndex1 = -1;
-                                int  nNewIndex2 = -1;
-                                int  nNewIndex3 = -1;
-                                int  nNewIndex4 = -1;
-                                int  nNewIndex5 = -1;
+                                int [] aNewIndex = new int[5];
+                                aNewIndex[0] = -1;
+                                aNewIndex[1] = -1;
+                                aNewIndex[2] = -1;
+                                aNewIndex[3] = -1;
+                                aNewIndex[4] = -1;
                                 int  nHashV4    = -1;
                                 int  nHashV5    = -1;
                                 bool bEdgeKey1  = false;
                                 bool bEdgeKey2  = false;
 
-                                EdgeKeyByIndex edgeKey1 = new EdgeKeyByIndex(nIndex1, nIndex2);
-                                EdgeKeyByIndex edgeKey2 = new EdgeKeyByIndex(nIndex2, nIndex3);
+                                EdgeKeyByIndex edgeKey1 = new EdgeKeyByIndex(aIndex[0], aIndex[1]);
+                                EdgeKeyByIndex edgeKey2 = new EdgeKeyByIndex(aIndex[1], aIndex[2]);
 
                                 // Find edges in cache
 
@@ -994,31 +1219,31 @@ namespace UltimateFracturing
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey1  = true;
-                                    nNewIndex1 = pdicClippedEdges[edgeKey1].GetFirstIndex(nIndex1);
-                                    nNewIndex4 = pdicClippedEdges[edgeKey1].nClippedIndex;
+                                    aNewIndex[0] = pdicClippedEdges[edgeKey1].GetFirstIndex(aIndex[0]);
+                                    aNewIndex[3] = pdicClippedEdges[edgeKey1].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex1)) nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[0])) aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                                 }
 
                                 if(pdicClippedEdges.ContainsKey(edgeKey2))
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey2  = true;
-                                    nNewIndex3 = pdicClippedEdges[edgeKey2].GetSecondIndex(nIndex3);
-                                    nNewIndex5 = pdicClippedEdges[edgeKey2].nClippedIndex;
+                                    aNewIndex[2] = pdicClippedEdges[edgeKey2].GetSecondIndex(aIndex[2]);
+                                    aNewIndex[4] = pdicClippedEdges[edgeKey2].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex3)) nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                                 }
 
                                 // Clip if not present in clipped edge list
 
-                                EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(nHashV1, nHashV2);
+                                clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[0], aHashVertex[1]);
 
                                 if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                                 {
@@ -1030,7 +1255,7 @@ namespace UltimateFracturing
                                     dicClipVerticesHash.Add(clippedEdgeKeyHash, nHashV4);
                                 }
 
-                                clippedEdgeKeyHash = new EdgeKeyByHash(nHashV2, nHashV3);
+                                clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[1], aHashVertex[2]);
 
                                 if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                                 {
@@ -1046,7 +1271,7 @@ namespace UltimateFracturing
 
                                 if(bEdgeKey1 == false)
                                 {
-                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex1, nIndex2, v1, v2, planeSplit, ref vd4) == false)
+                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[0], aIndex[1], aVertex[0], aVertex[1], planeSplit, ref vd4) == false)
                                     {
                                         return false;
                                     }
@@ -1054,7 +1279,7 @@ namespace UltimateFracturing
 
                                 if(bEdgeKey2 == false)
                                 {
-                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex2, nIndex3, v2, v3, planeSplit, ref vd5) == false)
+                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[1], aIndex[2], aVertex[1], aVertex[2], planeSplit, ref vd5) == false)
                                     {
                                         return false;
                                     }
@@ -1064,29 +1289,29 @@ namespace UltimateFracturing
 
                                 // Add vertex data for all data not present in remapped list
 
-                                if(nNewIndex1 == -1)
+                                if(aNewIndex[0] == -1)
                                 {
-                                    nNewIndex1 = plistVertexData.Count;
-                                    plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                    pdicRemappedIndices[nIndex1] = nNewIndex1;
+                                    aNewIndex[0] = plistVertexData.Count;
+                                    plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                    pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
                                 }
 
-                                if(nNewIndex3 == -1)
+                                if(aNewIndex[2] == -1)
                                 {
-                                    nNewIndex3 = plistVertexData.Count;
-                                    plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                    pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                    aNewIndex[2] = plistVertexData.Count;
+                                    plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                    pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                                 }
 
-                                if(nNewIndex4 == -1)
+                                if(aNewIndex[3] == -1)
                                 {
-                                    nNewIndex4 = plistVertexData.Count;
+                                    aNewIndex[3] = plistVertexData.Count;
                                     plistVertexData.Add(vd4);
                                 }
 
-                                if(nNewIndex5 == -1)
+                                if(aNewIndex[4] == -1)
                                 {
-                                    nNewIndex5 = plistVertexData.Count;
+                                    aNewIndex[4] = plistVertexData.Count;
                                     plistVertexData.Add(vd5);
                                 }
 
@@ -1095,42 +1320,42 @@ namespace UltimateFracturing
                                     pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                                 }
 
-                                plistObjectIndices.Add(nNewIndex1);
-                                plistObjectIndices.Add(nNewIndex4);
-                                plistObjectIndices.Add(nNewIndex5);
+                                plistObjectIndices.Add(aNewIndex[0]);
+                                plistObjectIndices.Add(aNewIndex[3]);
+                                plistObjectIndices.Add(aNewIndex[4]);
 
                                 if(fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
                                 {
                                     pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                                 }
 
-                                plistObjectIndices.Add(nNewIndex1);
-                                plistObjectIndices.Add(nNewIndex5);
-                                plistObjectIndices.Add(nNewIndex3);
+                                plistObjectIndices.Add(aNewIndex[0]);
+                                plistObjectIndices.Add(aNewIndex[4]);
+                                plistObjectIndices.Add(aNewIndex[2]);
 
-                                Vector3 v4 = plistVertexData[nNewIndex4].v3Vertex;
-                                Vector3 v5 = plistVertexData[nNewIndex5].v3Vertex;
+                                Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
+                                Vector3 v5 = plistVertexData[aNewIndex[4]].v3Vertex;
 
                                 if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                                 {
-                                    pFaceConnectivity.AddEdge(nSubMesh, v1, v4, nHashV1, nHashV4, nNewIndex1, nNewIndex4);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v5, nHashV4, nHashV5, nNewIndex4, nNewIndex5);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v1, nHashV5, nHashV1, nNewIndex5, nNewIndex1);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v1, v5, nHashV1, nHashV5, nNewIndex1, nNewIndex5);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v3, nHashV5, nHashV3, nNewIndex5, nNewIndex3);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v3, v1, nHashV3, nHashV1, nNewIndex3, nNewIndex1);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], v4, aHashVertex[0], nHashV4, aNewIndex[0], aNewIndex[3]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v5, nHashV4, nHashV5, aNewIndex[3], aNewIndex[4]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v5, aVertex[0], nHashV5, aHashVertex[0], aNewIndex[4], aNewIndex[0]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], v5, aHashVertex[0], nHashV5, aNewIndex[0], aNewIndex[4]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v5, aVertex[2], nHashV5, aHashVertex[2], aNewIndex[4], aNewIndex[2]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], aVertex[0], aHashVertex[2], aHashVertex[0], aNewIndex[2], aNewIndex[0]);
                                 }
 
                                 // Update cap edges and cache
 
-                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV5, plistVertexData[nNewIndex4].v3Vertex, plistVertexData[nNewIndex5].v3Vertex);
+                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV5, plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[4]].v3Vertex);
 
-                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(nIndex1, nIndex2, nNewIndex1, nNewIndex2, nNewIndex4));
-                                if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(nIndex2, nIndex3, nNewIndex2, nNewIndex3, nNewIndex5));
+                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(aIndex[0], aIndex[1], aNewIndex[0], aNewIndex[1], aNewIndex[3]));
+                                if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[4]));
 
                                 // Add geometry of other side
 
-                                if(fSide2 < 0.0f)
+                                if(aSide[1] < 0.0f)
                                 {
                                     plistVertexData     = listVertexDataNeg;
                                     plistObjectIndices  = listIndicesNeg;
@@ -1149,11 +1374,11 @@ namespace UltimateFracturing
                                     pdicRemappedIndices = dicRemappedIndicesPos;
                                 }
 
-                                nNewIndex1 = -1;
-                                nNewIndex2 = -1;
-                                nNewIndex3 = -1;
-                                nNewIndex4 = -1;
-                                nNewIndex5 = -1;
+                                aNewIndex[0] = -1;
+                                aNewIndex[1] = -1;
+                                aNewIndex[2] = -1;
+                                aNewIndex[3] = -1;
+                                aNewIndex[4] = -1;
                                 bEdgeKey1  = false;
                                 bEdgeKey2  = false;
 
@@ -1163,46 +1388,46 @@ namespace UltimateFracturing
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey1  = true;
-                                    nNewIndex2 = pdicClippedEdges[edgeKey1].GetSecondIndex(nIndex2);
-                                    nNewIndex4 = pdicClippedEdges[edgeKey1].nClippedIndex;
+                                    aNewIndex[1] = pdicClippedEdges[edgeKey1].GetSecondIndex(aIndex[1]);
+                                    aNewIndex[3] = pdicClippedEdges[edgeKey1].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex2)) nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                                 }
 
                                 if(pdicClippedEdges.ContainsKey(edgeKey2))
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey2  = true;
-                                    nNewIndex2 = pdicClippedEdges[edgeKey2].GetFirstIndex(nIndex2);
-                                    nNewIndex5 = pdicClippedEdges[edgeKey2].nClippedIndex;
+                                    aNewIndex[1] = pdicClippedEdges[edgeKey2].GetFirstIndex(aIndex[1]);
+                                    aNewIndex[4] = pdicClippedEdges[edgeKey2].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex2)) nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                                 }
 
                                 // Add vertex data for all data not present in remapped list
 
-                                if(nNewIndex2 == -1)
+                                if(aNewIndex[1] == -1)
                                 {
-                                    nNewIndex2 = plistVertexData.Count;
-                                    plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                    pdicRemappedIndices[nIndex2] = nNewIndex2;
+                                    aNewIndex[1] = plistVertexData.Count;
+                                    plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                    pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
                                 }
 
-                                if(nNewIndex4 == -1)
+                                if(aNewIndex[3] == -1)
                                 {
-                                    nNewIndex4 = plistVertexData.Count;
+                                    aNewIndex[3] = plistVertexData.Count;
                                     plistVertexData.Add(vd4);
                                 }
 
-                                if(nNewIndex5 == -1)
+                                if(aNewIndex[4] == -1)
                                 {
-                                    nNewIndex5 = plistVertexData.Count;
+                                    aNewIndex[4] = plistVertexData.Count;
                                     plistVertexData.Add(vd5);
                                 }
 
@@ -1211,29 +1436,29 @@ namespace UltimateFracturing
                                     pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                                 }
 
-                                plistObjectIndices.Add(nNewIndex4);
-                                plistObjectIndices.Add(nNewIndex2);
-                                plistObjectIndices.Add(nNewIndex5);
+                                plistObjectIndices.Add(aNewIndex[3]);
+                                plistObjectIndices.Add(aNewIndex[1]);
+                                plistObjectIndices.Add(aNewIndex[4]);
 
                                 if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                                 {
-                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v2, nHashV4, nHashV2, nNewIndex4, nNewIndex2);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v2, v5, nHashV2, nHashV5, nNewIndex2, nNewIndex5);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v4, nHashV5, nHashV4, nNewIndex5, nNewIndex4);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[1], nHashV4, aHashVertex[1], aNewIndex[3], aNewIndex[1]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], v5, aHashVertex[1], nHashV5, aNewIndex[1], aNewIndex[4]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v4, nHashV5, nHashV4, aNewIndex[4], aNewIndex[3]);
                                 }
 
                                 // Update cap edges and cache
 
-                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV5, nHashV4, plistVertexData[nNewIndex5].v3Vertex, plistVertexData[nNewIndex4].v3Vertex);
+                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV5, nHashV4, plistVertexData[aNewIndex[4]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
 
-                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(nIndex1, nIndex2, nNewIndex1, nNewIndex2, nNewIndex4));
-                                if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(nIndex2, nIndex3, nNewIndex2, nNewIndex3, nNewIndex5));
+                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(aIndex[0], aIndex[1], aNewIndex[0], aNewIndex[1], aNewIndex[3]));
+                                if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[4]));
                             }
+                            #endregion
+                            #region... and aVertex[2] on same side as aVertex[1]
                             else
                             {
-                                // ... and v3 on same side as v2
-
-                                if(fSide1 < 0.0f)
+                                if(aSide[0] < 0.0f)
                                 {
                                     plistVertexData     = listVertexDataNeg;
                                     plistObjectIndices  = listIndicesNeg;
@@ -1243,18 +1468,19 @@ namespace UltimateFracturing
                                     pdicRemappedIndices = dicRemappedIndicesNeg;
                                 }
 
-                                int  nNewIndex1 = -1;
-                                int  nNewIndex2 = -1;
-                                int  nNewIndex3 = -1;
-                                int  nNewIndex4 = -1;
-                                int  nNewIndex5 = -1;
+                                int [] aNewIndex = new int[5];
+                                aNewIndex[0] = -1;
+                                aNewIndex[1] = -1;
+                                aNewIndex[2] = -1;
+                                aNewIndex[3] = -1;
+                                aNewIndex[4] = -1;
                                 int  nHashV4    = -1;
                                 int  nHashV5    = -1;
                                 bool bEdgeKey1  = false;
                                 bool bEdgeKey3  = false;
 
-                                EdgeKeyByIndex edgeKey1 = new EdgeKeyByIndex(nIndex1, nIndex2);
-                                EdgeKeyByIndex edgeKey3 = new EdgeKeyByIndex(nIndex1, nIndex3);
+                                EdgeKeyByIndex edgeKey1 = new EdgeKeyByIndex(aIndex[0], aIndex[1]);
+                                EdgeKeyByIndex edgeKey3 = new EdgeKeyByIndex(aIndex[0], aIndex[2]);
 
                                 // Find edges in cache
 
@@ -1262,31 +1488,31 @@ namespace UltimateFracturing
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey1  = true;
-                                    nNewIndex1 = pdicClippedEdges[edgeKey1].GetFirstIndex(nIndex1);
-                                    nNewIndex4 = pdicClippedEdges[edgeKey1].nClippedIndex;
+                                    aNewIndex[0] = pdicClippedEdges[edgeKey1].GetFirstIndex(aIndex[0]);
+                                    aNewIndex[3] = pdicClippedEdges[edgeKey1].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex1)) nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[0])) aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                                 }
 
                                 if(pdicClippedEdges.ContainsKey(edgeKey3))
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey3  = true;
-                                    nNewIndex1 = pdicClippedEdges[edgeKey3].GetFirstIndex(nIndex1);
-                                    nNewIndex5 = pdicClippedEdges[edgeKey3].nClippedIndex;
+                                    aNewIndex[0] = pdicClippedEdges[edgeKey3].GetFirstIndex(aIndex[0]);
+                                    aNewIndex[4] = pdicClippedEdges[edgeKey3].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex1)) nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[0])) aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                                 }
 
                                 // Clip if not present in clipped edge list
 
-                                EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(nHashV1, nHashV2);
+                                clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[0], aHashVertex[1]);
 
                                 if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                                 {
@@ -1298,7 +1524,7 @@ namespace UltimateFracturing
                                     dicClipVerticesHash.Add(clippedEdgeKeyHash, nHashV4);
                                 }
 
-                                clippedEdgeKeyHash = new EdgeKeyByHash(nHashV1, nHashV3);
+                                clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[0], aHashVertex[2]);
 
                                 if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                                 {
@@ -1314,7 +1540,7 @@ namespace UltimateFracturing
 
                                 if(bEdgeKey1 == false)
                                 {
-                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex1, nIndex2, v1, v2, planeSplit, ref vd4) == false)
+                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[0], aIndex[1], aVertex[0], aVertex[1], planeSplit, ref vd4) == false)
                                     {
                                         return false;
                                     }
@@ -1322,7 +1548,7 @@ namespace UltimateFracturing
 
                                 if(bEdgeKey3 == false)
                                 {
-                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex1, nIndex3, v1, v3, planeSplit, ref vd5) == false)
+                                    if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[0], aIndex[2], aVertex[0], aVertex[2], planeSplit, ref vd5) == false)
                                     {
                                         return false;
                                     }
@@ -1332,22 +1558,22 @@ namespace UltimateFracturing
 
                                 // Add vertex data for all data not present in remapped list
 
-                                if(nNewIndex1 == -1)
+                                if(aNewIndex[0] == -1)
                                 {
-                                    nNewIndex1 = plistVertexData.Count;
-                                    plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                    pdicRemappedIndices[nIndex1] = nNewIndex1;
+                                    aNewIndex[0] = plistVertexData.Count;
+                                    plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                    pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
                                 }
 
-                                if(nNewIndex4 == -1)
+                                if(aNewIndex[3] == -1)
                                 {
-                                    nNewIndex4 = plistVertexData.Count;
+                                    aNewIndex[3] = plistVertexData.Count;
                                     plistVertexData.Add(vd4);
                                 }
 
-                                if(nNewIndex5 == -1)
+                                if(aNewIndex[4] == -1)
                                 {
-                                    nNewIndex5 = plistVertexData.Count;
+                                    aNewIndex[4] = plistVertexData.Count;
                                     plistVertexData.Add(vd5);
                                 }
 
@@ -1356,30 +1582,30 @@ namespace UltimateFracturing
                                     pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                                 }
 
-                                plistObjectIndices.Add(nNewIndex1);
-                                plistObjectIndices.Add(nNewIndex4);
-                                plistObjectIndices.Add(nNewIndex5);
+                                plistObjectIndices.Add(aNewIndex[0]);
+                                plistObjectIndices.Add(aNewIndex[3]);
+                                plistObjectIndices.Add(aNewIndex[4]);
 
-                                Vector3 v4 = plistVertexData[nNewIndex4].v3Vertex;
-                                Vector3 v5 = plistVertexData[nNewIndex5].v3Vertex;
+                                Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
+                                Vector3 v5 = plistVertexData[aNewIndex[4]].v3Vertex;
 
                                 if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                                 {
-                                    pFaceConnectivity.AddEdge(nSubMesh, v1, v4, nHashV1, nHashV4, nNewIndex1, nNewIndex4);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v5, nHashV4, nHashV5, nNewIndex4, nNewIndex5);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v1, nHashV5, nHashV1, nNewIndex5, nNewIndex1);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], v4, aHashVertex[0], nHashV4, aNewIndex[0], aNewIndex[3]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v5, nHashV4, nHashV5, aNewIndex[3], aNewIndex[4]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v5, aVertex[0], nHashV5, aHashVertex[0], aNewIndex[4], aNewIndex[0]);
                                 }
 
                                 // Update cap edges and cache
 
-                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV5, plistVertexData[nNewIndex4].v3Vertex, plistVertexData[nNewIndex5].v3Vertex);
+                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV5, plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[4]].v3Vertex);
 
-                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(nIndex1, nIndex2, nNewIndex1, nNewIndex2, nNewIndex4));
-                                if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(nIndex1, nIndex3, nNewIndex1, nNewIndex3, nNewIndex5));
+                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(aIndex[0], aIndex[1], aNewIndex[0], aNewIndex[1], aNewIndex[3]));
+                                if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(aIndex[0], aIndex[2], aNewIndex[0], aNewIndex[2], aNewIndex[4]));
 
                                 // Add geometry of other side
 
-                                if(fSide2 < 0.0f)
+                                if(aSide[1] < 0.0f)
                                 {
                                     plistVertexData     = listVertexDataNeg;
                                     plistObjectIndices  = listIndicesNeg;
@@ -1398,11 +1624,11 @@ namespace UltimateFracturing
                                     pdicRemappedIndices = dicRemappedIndicesPos;
                                 }
 
-                                nNewIndex1 = -1;
-                                nNewIndex2 = -1;
-                                nNewIndex3 = -1;
-                                nNewIndex4 = -1;
-                                nNewIndex5 = -1;
+                                aNewIndex[0] = -1;
+                                aNewIndex[1] = -1;
+                                aNewIndex[2] = -1;
+                                aNewIndex[3] = -1;
+                                aNewIndex[4] = -1;
                                 bEdgeKey1  = false;
                                 bEdgeKey3  = false;
 
@@ -1412,53 +1638,53 @@ namespace UltimateFracturing
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey1  = true;
-                                    nNewIndex2 = pdicClippedEdges[edgeKey1].GetSecondIndex(nIndex2);
-                                    nNewIndex4 = pdicClippedEdges[edgeKey1].nClippedIndex;
+                                    aNewIndex[1] = pdicClippedEdges[edgeKey1].GetSecondIndex(aIndex[1]);
+                                    aNewIndex[3] = pdicClippedEdges[edgeKey1].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex2)) nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                                 }
 
                                 if(pdicClippedEdges.ContainsKey(edgeKey3))
                                 {
                                     nClippedCacheHits++;
                                     bEdgeKey3  = true;
-                                    nNewIndex3 = pdicClippedEdges[edgeKey3].GetSecondIndex(nIndex3);
-                                    nNewIndex5 = pdicClippedEdges[edgeKey3].nClippedIndex;
+                                    aNewIndex[2] = pdicClippedEdges[edgeKey3].GetSecondIndex(aIndex[2]);
+                                    aNewIndex[4] = pdicClippedEdges[edgeKey3].nClippedIndex;
                                 }
                                 else
                                 {
                                     nClippedCacheMisses++;
-                                    if(pdicRemappedIndices.ContainsKey(nIndex3)) nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                    if(pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                                 }
 
                                 // Add vertex data for all data not present in remapped list
 
-                                if(nNewIndex2 == -1)
+                                if(aNewIndex[1] == -1)
                                 {
-                                    nNewIndex2 = plistVertexData.Count;
-                                    plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                    pdicRemappedIndices[nIndex2] = nNewIndex2;
+                                    aNewIndex[1] = plistVertexData.Count;
+                                    plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                    pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
                                 }
 
-                                if(nNewIndex3 == -1)
+                                if(aNewIndex[2] == -1)
                                 {
-                                    nNewIndex3 = plistVertexData.Count;
-                                    plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                    pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                    aNewIndex[2] = plistVertexData.Count;
+                                    plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                    pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                                 }
 
-                                if(nNewIndex4 == -1)
+                                if(aNewIndex[3] == -1)
                                 {
-                                    nNewIndex4 = plistVertexData.Count;
+                                    aNewIndex[3] = plistVertexData.Count;
                                     plistVertexData.Add(vd4);
                                 }
 
-                                if(nNewIndex5 == -1)
+                                if(aNewIndex[4] == -1)
                                 {
-                                    nNewIndex5 = plistVertexData.Count;
+                                    aNewIndex[4] = plistVertexData.Count;
                                     plistVertexData.Add(vd5);
                                 }
 
@@ -1467,42 +1693,45 @@ namespace UltimateFracturing
                                     pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                                 }
 
-                                plistObjectIndices.Add(nNewIndex4);
-                                plistObjectIndices.Add(nNewIndex2);
-                                plistObjectIndices.Add(nNewIndex3);
+                                plistObjectIndices.Add(aNewIndex[3]);
+                                plistObjectIndices.Add(aNewIndex[1]);
+                                plistObjectIndices.Add(aNewIndex[2]);
 
                                 if(fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
                                 {
                                     pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                                 }
 
-                                plistObjectIndices.Add(nNewIndex4);
-                                plistObjectIndices.Add(nNewIndex3);
-                                plistObjectIndices.Add(nNewIndex5);
+                                plistObjectIndices.Add(aNewIndex[3]);
+                                plistObjectIndices.Add(aNewIndex[2]);
+                                plistObjectIndices.Add(aNewIndex[4]);
 
                                 if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                                 {
-                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v2, nHashV4, nHashV2, nNewIndex4, nNewIndex2);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v2, v3, nHashV2, nHashV3, nNewIndex2, nNewIndex3);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v3, v4, nHashV3, nHashV4, nNewIndex3, nNewIndex4);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v4, v3, nHashV4, nHashV3, nNewIndex4, nNewIndex3);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v3, v5, nHashV3, nHashV5, nNewIndex3, nNewIndex5);
-                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v4, nHashV5, nHashV4, nNewIndex5, nNewIndex4);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[1], nHashV4, aHashVertex[1], aNewIndex[3], aNewIndex[1]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], aVertex[2], aHashVertex[1], aHashVertex[2], aNewIndex[1], aNewIndex[2]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], v4, aHashVertex[2], nHashV4, aNewIndex[2], aNewIndex[3]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[2], nHashV4, aHashVertex[2], aNewIndex[3], aNewIndex[2]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], v5, aHashVertex[2], nHashV5, aNewIndex[2], aNewIndex[4]);
+                                    pFaceConnectivity.AddEdge(nSubMesh, v5, v4, nHashV5, nHashV4, aNewIndex[4], aNewIndex[3]);
                                 }
 
                                 // Update cap edges and cache
 
-                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV5, nHashV4, plistVertexData[nNewIndex5].v3Vertex, plistVertexData[nNewIndex4].v3Vertex);
+                                if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV5, nHashV4, plistVertexData[aNewIndex[4]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
 
-                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(nIndex1, nIndex2, nNewIndex1, nNewIndex2, nNewIndex4));
-                                if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(nIndex1, nIndex3, nNewIndex1, nNewIndex3, nNewIndex5));
+                                if(pdicClippedEdges.ContainsKey(edgeKey1) == false) pdicClippedEdges.Add(edgeKey1, new ClippedEdge(aIndex[0], aIndex[1], aNewIndex[0], aNewIndex[1], aNewIndex[3]));
+                                if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(aIndex[0], aIndex[2], aNewIndex[0], aNewIndex[2], aNewIndex[4]));
                             }
+                            #endregion
                         }
-                        else if(fSide2 * fSide3 < 0.0f)
+                        #endregion
+                        #region aVertex[0] and aVertex[1] on same side, and v3 on different side
+                        else if(aSide[1] * aSide[2] < 0.0f)
                         {
-                            // v1 and v2 on same side, and v3 on different side
+                            
 
-                            if(fSide1 < 0.0f)
+                            if(aSide[0] < 0.0f)
                             {
                                 plistVertexData     = listVertexDataNeg;
                                 plistObjectIndices  = listIndicesNeg;
@@ -1512,18 +1741,19 @@ namespace UltimateFracturing
                                 pdicRemappedIndices = dicRemappedIndicesNeg;
                             }
 
-                            int  nNewIndex1 = -1;
-                            int  nNewIndex2 = -1;
-                            int  nNewIndex3 = -1;
-                            int  nNewIndex4 = -1;
-                            int  nNewIndex5 = -1;
+                            int [] aNewIndex = new int[5];
+                            aNewIndex[0] = -1;
+                            aNewIndex[1] = -1;
+                            aNewIndex[2] = -1;
+                            aNewIndex[3] = -1;
+                            aNewIndex[4] = -1;
                             int  nHashV4    = -1;
                             int  nHashV5    = -1;
                             bool bEdgeKey2  = false;
                             bool bEdgeKey3  = false;
 
-                            EdgeKeyByIndex edgeKey2 = new EdgeKeyByIndex(nIndex2, nIndex3);
-                            EdgeKeyByIndex edgeKey3 = new EdgeKeyByIndex(nIndex1, nIndex3);
+                            EdgeKeyByIndex edgeKey2 = new EdgeKeyByIndex(aIndex[1], aIndex[2]);
+                            EdgeKeyByIndex edgeKey3 = new EdgeKeyByIndex(aIndex[0], aIndex[2]);
 
                             // Find edges in cache
 
@@ -1531,31 +1761,31 @@ namespace UltimateFracturing
                             {
                                 nClippedCacheHits++;
                                 bEdgeKey2  = true;
-                                nNewIndex2 = pdicClippedEdges[edgeKey2].GetFirstIndex(nIndex2);
-                                nNewIndex5 = pdicClippedEdges[edgeKey2].nClippedIndex;
+                                aNewIndex[1] = pdicClippedEdges[edgeKey2].GetFirstIndex(aIndex[1]);
+                                aNewIndex[4] = pdicClippedEdges[edgeKey2].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex2)) nNewIndex2 = pdicRemappedIndices[nIndex2];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[1])) aNewIndex[1] = pdicRemappedIndices[aIndex[1]];
                             }
 
                             if(pdicClippedEdges.ContainsKey(edgeKey3))
                             {
                                 nClippedCacheHits++;
                                 bEdgeKey3  = true;
-                                nNewIndex1 = pdicClippedEdges[edgeKey3].GetFirstIndex(nIndex1);
-                                nNewIndex4 = pdicClippedEdges[edgeKey3].nClippedIndex;
+                                aNewIndex[0] = pdicClippedEdges[edgeKey3].GetFirstIndex(aIndex[0]);
+                                aNewIndex[3] = pdicClippedEdges[edgeKey3].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex1)) nNewIndex1 = pdicRemappedIndices[nIndex1];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[0])) aNewIndex[0] = pdicRemappedIndices[aIndex[0]];
                             }
 
                             // Clip if not present in clipped edge list
 
-                            EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(nHashV1, nHashV3);
+                            EdgeKeyByHash clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[0], aHashVertex[2]);
 
                             if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                             {
@@ -1567,7 +1797,7 @@ namespace UltimateFracturing
                                 dicClipVerticesHash.Add(clippedEdgeKeyHash, nHashV4);
                             }
 
-                            clippedEdgeKeyHash = new EdgeKeyByHash(nHashV2, nHashV3);
+                            clippedEdgeKeyHash = new EdgeKeyByHash(aHashVertex[1], aHashVertex[2]);
 
                             if(dicClipVerticesHash.ContainsKey(clippedEdgeKeyHash))
                             {
@@ -1583,7 +1813,7 @@ namespace UltimateFracturing
 
                             if(bEdgeKey2 == false)
                             {
-                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex2, nIndex3, v2, v3, planeSplit, ref vd5) == false)
+                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[1], aIndex[2], aVertex[1], aVertex[2], planeSplit, ref vd5) == false)
                                 {
                                     return false;
                                 }
@@ -1591,7 +1821,7 @@ namespace UltimateFracturing
 
                             if(bEdgeKey3 == false)
                             {
-                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, nIndex1, nIndex3, v1, v3, planeSplit, ref vd4) == false)
+                                if(VertexData.ClipAgainstPlane(meshDataIn.aVertexData, aIndex[0], aIndex[2], aVertex[0], aVertex[2], planeSplit, ref vd4) == false)
                                 {
                                     return false;
                                 }
@@ -1601,29 +1831,29 @@ namespace UltimateFracturing
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex1 == -1)
+                            if(aNewIndex[0] == -1)
                             {
-                                nNewIndex1 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex1].Copy());
-                                pdicRemappedIndices[nIndex1] = nNewIndex1;
+                                aNewIndex[0] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[0]].Copy());
+                                pdicRemappedIndices[aIndex[0]] = aNewIndex[0];
                             }
 
-                            if(nNewIndex2 == -1)
+                            if(aNewIndex[1] == -1)
                             {
-                                nNewIndex2 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex2].Copy());
-                                pdicRemappedIndices[nIndex2] = nNewIndex2;
+                                aNewIndex[1] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[1]].Copy());
+                                pdicRemappedIndices[aIndex[1]] = aNewIndex[1];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if(aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
-                            if(nNewIndex5 == -1)
+                            if(aNewIndex[4] == -1)
                             {
-                                nNewIndex5 = plistVertexData.Count;
+                                aNewIndex[4] = plistVertexData.Count;
                                 plistVertexData.Add(vd5);
                             }
 
@@ -1632,42 +1862,42 @@ namespace UltimateFracturing
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex2);
-                            plistObjectIndices.Add(nNewIndex5);
-                            plistObjectIndices.Add(nNewIndex4);
+                            plistObjectIndices.Add(aNewIndex[1]);
+                            plistObjectIndices.Add(aNewIndex[4]);
+                            plistObjectIndices.Add(aNewIndex[3]);
 
                             if(fracturedComponent.GenerateChunkConnectionInfo && splitOptions.bForceNoChunkConnectionInfo == false)
                             {
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex2);
-                            plistObjectIndices.Add(nNewIndex4);
-                            plistObjectIndices.Add(nNewIndex1);
+                            plistObjectIndices.Add(aNewIndex[1]);
+                            plistObjectIndices.Add(aNewIndex[3]);
+                            plistObjectIndices.Add(aNewIndex[0]);
 
-                            Vector3 v4 = plistVertexData[nNewIndex4].v3Vertex;
-                            Vector3 v5 = plistVertexData[nNewIndex5].v3Vertex;
+                            Vector3 v4 = plistVertexData[aNewIndex[3]].v3Vertex;
+                            Vector3 v5 = plistVertexData[aNewIndex[4]].v3Vertex;
 
                             if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v2, v5, nHashV2, nHashV5, nNewIndex2, nNewIndex5);
-                                pFaceConnectivity.AddEdge(nSubMesh, v5, v4, nHashV5, nHashV4, nNewIndex5, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v2, nHashV4, nHashV2, nNewIndex4, nNewIndex2);
-                                pFaceConnectivity.AddEdge(nSubMesh, v2, v4, nHashV2, nHashV4, nNewIndex2, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v1, nHashV4, nHashV1, nNewIndex4, nNewIndex1);
-                                pFaceConnectivity.AddEdge(nSubMesh, v1, v2, nHashV1, nHashV2, nNewIndex1, nNewIndex2);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], v5, aHashVertex[1], nHashV5, aNewIndex[1], aNewIndex[4]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v5, v4, nHashV5, nHashV4, aNewIndex[4], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[1], nHashV4, aHashVertex[1], aNewIndex[3], aNewIndex[1]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[1], v4, aHashVertex[1], nHashV4, aNewIndex[1], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, aVertex[0], nHashV4, aHashVertex[0], aNewIndex[3], aNewIndex[0]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[0], aVertex[1], aHashVertex[0], aHashVertex[1], aNewIndex[0], aNewIndex[1]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV5, nHashV4, plistVertexData[nNewIndex5].v3Vertex, plistVertexData[nNewIndex4].v3Vertex);
+                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV5, nHashV4, plistVertexData[aNewIndex[4]].v3Vertex, plistVertexData[aNewIndex[3]].v3Vertex);
 
-                            if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(nIndex2, nIndex3, nNewIndex2, nNewIndex3, nNewIndex5));
-                            if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(nIndex1, nIndex3, nNewIndex1, nNewIndex3, nNewIndex4));
+                            if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[4]));
+                            if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(aIndex[0], aIndex[2], aNewIndex[0], aNewIndex[2], aNewIndex[3]));
 
                             // Add geometry of other side
 
-                            if(fSide3 < 0.0f)
+                            if(aSide[2] < 0.0f)
                             {
                                 plistVertexData     = listVertexDataNeg;
                                 plistObjectIndices  = listIndicesNeg;
@@ -1686,11 +1916,11 @@ namespace UltimateFracturing
                                 pdicRemappedIndices = dicRemappedIndicesPos;
                             }
 
-                            nNewIndex1 = -1;
-                            nNewIndex2 = -1;
-                            nNewIndex3 = -1;
-                            nNewIndex4 = -1;
-                            nNewIndex5 = -1;
+                            aNewIndex[0] = -1;
+                            aNewIndex[1] = -1;
+                            aNewIndex[2] = -1;
+                            aNewIndex[3] = -1;
+                            aNewIndex[4] = -1;
                             bEdgeKey2  = false;
                             bEdgeKey3  = false;
 
@@ -1700,46 +1930,46 @@ namespace UltimateFracturing
                             {
                                 nClippedCacheHits++;
                                 bEdgeKey2  = true;
-                                nNewIndex3 = pdicClippedEdges[edgeKey2].GetSecondIndex(nIndex3);
-                                nNewIndex5 = pdicClippedEdges[edgeKey2].nClippedIndex;
+                                aNewIndex[2] = pdicClippedEdges[edgeKey2].GetSecondIndex(aIndex[2]);
+                                aNewIndex[4] = pdicClippedEdges[edgeKey2].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex3)) nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                             }
 
                             if(pdicClippedEdges.ContainsKey(edgeKey3))
                             {
                                 nClippedCacheHits++;
                                 bEdgeKey3  = true;
-                                nNewIndex3 = pdicClippedEdges[edgeKey3].GetSecondIndex(nIndex3);
-                                nNewIndex4 = pdicClippedEdges[edgeKey3].nClippedIndex;
+                                aNewIndex[2] = pdicClippedEdges[edgeKey3].GetSecondIndex(aIndex[2]);
+                                aNewIndex[3] = pdicClippedEdges[edgeKey3].nClippedIndex;
                             }
                             else
                             {
                                 nClippedCacheMisses++;
-                                if(pdicRemappedIndices.ContainsKey(nIndex3)) nNewIndex3 = pdicRemappedIndices[nIndex3];
+                                if(pdicRemappedIndices.ContainsKey(aIndex[2])) aNewIndex[2] = pdicRemappedIndices[aIndex[2]];
                             }
 
                             // Add vertex data for all data not present in remapped list
 
-                            if(nNewIndex3 == -1)
+                            if(aNewIndex[2] == -1)
                             {
-                                nNewIndex3 = plistVertexData.Count;
-                                plistVertexData.Add(meshDataIn.aVertexData[nIndex3].Copy());
-                                pdicRemappedIndices[nIndex3] = nNewIndex3;
+                                aNewIndex[2] = plistVertexData.Count;
+                                plistVertexData.Add(meshDataIn.aVertexData[aIndex[2]].Copy());
+                                pdicRemappedIndices[aIndex[2]] = aNewIndex[2];
                             }
 
-                            if(nNewIndex4 == -1)
+                            if(aNewIndex[3] == -1)
                             {
-                                nNewIndex4 = plistVertexData.Count;
+                                aNewIndex[3] = plistVertexData.Count;
                                 plistVertexData.Add(vd4);
                             }
 
-                            if(nNewIndex5 == -1)
+                            if(aNewIndex[4] == -1)
                             {
-                                nNewIndex5 = plistVertexData.Count;
+                                aNewIndex[4] = plistVertexData.Count;
                                 plistVertexData.Add(vd5);
                             }
 
@@ -1748,25 +1978,27 @@ namespace UltimateFracturing
                                 pMeshConnectivity.NotifyNewClippedFace(meshDataIn, nSubMesh, i, nSubMesh, plistObjectIndices.Count / 3);
                             }
 
-                            plistObjectIndices.Add(nNewIndex5);
-                            plistObjectIndices.Add(nNewIndex3);
-                            plistObjectIndices.Add(nNewIndex4);
+                            plistObjectIndices.Add(aNewIndex[4]);
+                            plistObjectIndices.Add(aNewIndex[2]);
+                            plistObjectIndices.Add(aNewIndex[3]);
 
                             if(fracturedComponent.GenerateIslands && splitOptions.bForceNoIslandGeneration == false)
                             {
-                                pFaceConnectivity.AddEdge(nSubMesh, v5, v3, nHashV5, nHashV3, nNewIndex5, nNewIndex3);
-                                pFaceConnectivity.AddEdge(nSubMesh, v3, v4, nHashV3, nHashV4, nNewIndex3, nNewIndex4);
-                                pFaceConnectivity.AddEdge(nSubMesh, v4, v5, nHashV4, nHashV5, nNewIndex4, nNewIndex5);
+                                pFaceConnectivity.AddEdge(nSubMesh, v5, aVertex[2], nHashV5, aHashVertex[2], aNewIndex[4], aNewIndex[2]);
+                                pFaceConnectivity.AddEdge(nSubMesh, aVertex[2], v4, aHashVertex[2], nHashV4, aNewIndex[2], aNewIndex[3]);
+                                pFaceConnectivity.AddEdge(nSubMesh, v4, v5, nHashV4, nHashV5, aNewIndex[3], aNewIndex[4]);
                             }
 
                             // Update cap edges and cache
 
-                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV5, plistVertexData[nNewIndex4].v3Vertex, plistVertexData[nNewIndex5].v3Vertex);
+                            if(plistVertexData == listVertexDataPos && splitOptions.bForceNoCap == false) AddCapEdge(dicCapEdges, nHashV4, nHashV5, plistVertexData[aNewIndex[3]].v3Vertex, plistVertexData[aNewIndex[4]].v3Vertex);
 
-                            if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(nIndex2, nIndex3, nNewIndex2, nNewIndex3, nNewIndex5));
-                            if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(nIndex1, nIndex3, nNewIndex1, nNewIndex3, nNewIndex4));
+                            if(pdicClippedEdges.ContainsKey(edgeKey2) == false) pdicClippedEdges.Add(edgeKey2, new ClippedEdge(aIndex[1], aIndex[2], aNewIndex[1], aNewIndex[2], aNewIndex[4]));
+                            if(pdicClippedEdges.ContainsKey(edgeKey3) == false) pdicClippedEdges.Add(edgeKey3, new ClippedEdge(aIndex[0], aIndex[2], aNewIndex[0], aNewIndex[2], aNewIndex[3]));
                         }
+                        #endregion
                     }
+                    #endregion
                 }
             }
 
